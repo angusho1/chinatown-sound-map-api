@@ -12,7 +12,7 @@ export default interface SoundClip {
     meta: any
 }
 
-export const soundClipSchema = new Schema({
+const soundClipSchema = new Schema({
     title: String,
     author: String,
     description: String,
@@ -27,3 +27,5 @@ export const soundClipSchema = new Schema({
       likes: Number
     }
 });
+
+export const SoundClipModel = mongoose.model('SoundClip', soundClipSchema);

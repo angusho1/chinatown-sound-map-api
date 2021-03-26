@@ -1,12 +1,17 @@
-import express from 'express'
-import path from 'path'
-import cookieParser from 'cookie-parser'
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
 import logger from 'morgan';
+import mongoose from 'mongoose';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 import soundClipsRouter from './routes/sound-clips';
 
+const MONGODB_URL = process.env.MONGODB_URL as string;
+mongoose.connect(MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+
+const db = mongoose.connection;
 const app = express();
 
 app.use(logger('dev'));
