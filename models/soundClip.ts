@@ -7,7 +7,7 @@ export default interface SoundClip {
     author: string,
     description: string,
     location: Location,
-    submissionDate: Date,
+    date: Date,
     categories: string[],
     meta: any
 }
@@ -20,7 +20,7 @@ const soundClipSchema = new Schema({
         lat: Number,
         lng: Number
     },
-    submissionDate: Date,
+    date: Date,
     categories: [String],
     meta: {
       views: Number,
