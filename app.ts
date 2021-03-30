@@ -2,16 +2,22 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import mongoose from 'mongoose';
+import mysql from 'mysql';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 import soundClipsRouter from './routes/sound-clips';
 
-const MONGODB_URL = process.env.MONGODB_URL as string;
-mongoose.connect(MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+const pool = mysql.createPool({
+    connectionLimit: 10,
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE
+});
 
-const db = mongoose.connection;
+pool.connect();
+
 const app = express();
 
 app.use(logger('dev'));
@@ -28,4 +34,4 @@ app.listen(3001, () => {
     console.log('The application is listening on port 3001!');
 })
 
-export default app;
+export default { app, pool };

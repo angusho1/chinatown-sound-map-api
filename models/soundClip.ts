@@ -1,6 +1,4 @@
-import mongoose from 'mongoose';
 import Location from './location';
-const { Schema } = mongoose;
 
 export default interface SoundClip {
     title: string,
@@ -9,23 +7,10 @@ export default interface SoundClip {
     location: Location,
     date: Date,
     categories: string[],
-    meta: any
+    meta: Meta
 }
 
-const soundClipSchema = new Schema({
-    title: String,
-    author: String,
-    description: String,
-    location: {
-        lat: Number,
-        lng: Number
-    },
-    date: Date,
-    categories: [String],
-    meta: {
-      views: Number,
-      likes: Number
-    }
-});
-
-export const SoundClipModel = mongoose.model('SoundClip', soundClipSchema);
+export interface Meta {
+    plays: Number,
+    likes: Number
+}

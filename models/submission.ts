@@ -1,7 +1,5 @@
-import mongoose from 'mongoose';
 import SoundClip from './soundClip';
 import User from './user';
-const { Schema } = mongoose;
 
 export default interface Submission {
     dateSubmitted: Date,
@@ -17,14 +15,3 @@ export enum SubmissionStatus {
     Approved,
     Rejected
 }
-
-const submissionSchema = new Schema({
-    dateSubmitted: Date,
-    dateApproved: Date,
-    dateRejected: Date,
-    soundClip: Object,
-    status: String,
-    user: Object
-});
-
-export const submissionModel = mongoose.model('submission', submissionSchema);
