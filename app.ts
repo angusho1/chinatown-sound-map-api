@@ -8,15 +8,13 @@ import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 import soundClipsRouter from './routes/sound-clips';
 
-const pool = mysql.createPool({
+export const pool = mysql.createPool({
     connectionLimit: 10,
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE
 });
-
-pool.connect();
 
 const app = express();
 
@@ -30,8 +28,5 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/sound-clips', soundClipsRouter);
 
-app.listen(3001, () => {
-    console.log('The application is listening on port 3001!');
-})
-
-export default { app, pool };
+export default app;
+module.exports = app;
