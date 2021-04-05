@@ -1,13 +1,11 @@
-import { pool } from '../app';
-
 import SoundClip from '../models/SoundClip';
 import Location from '../models/Location';
-import { FieldPacket, RowDataPacket } from 'mysql2';
+import { db } from './db';
 
 export async function getSoundClips(): Promise<SoundClip[]> {
-    const [rows, fields]: [RowDataPacket[], FieldPacket[]] = await pool.promise().execute('SELECT * FROM SoundClips');
+    const results = await db.query('SELECT * FROM SoundClips');
 
-    const soundClips: SoundClip[] = rows.map(res => {
+    const soundClips: SoundClip[] = results.map(res => {
         const location: Location = { lat: res.latitude, lng: res.longitude, address: "" };
         return {
             title: res.title,
