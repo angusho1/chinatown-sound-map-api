@@ -7,6 +7,7 @@ import mysql from 'mysql2';
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 import soundClipsRouter from './routes/sound-clips';
+import errorHandler from './middleware/error.middleware';
 
 export const pool = mysql.createPool({
     connectionLimit: 10,
@@ -27,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/sound-clips', soundClipsRouter);
+app.use(errorHandler);
 
 export default app;
 module.exports = app;
