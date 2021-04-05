@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import mysql from 'mysql';
+import mysql from 'mysql2';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';

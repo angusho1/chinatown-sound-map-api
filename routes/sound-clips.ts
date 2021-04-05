@@ -1,28 +1,11 @@
 import express from 'express';
-import { pool } from '../app';
-import SoundClip from '../models/soundClip';
-import Location from '../models/location';
+import * as SoundClipsService from '../services/sound-clips';
+
 const router = express.Router();
 
-router.get('/', function(req, res, next) {
-    pool.query('SELECT * FROM SoundClips', (error, results, fields) => {
-        if (error) throw error;
-        const soundClips: SoundClip[] = results.map(res => {
-            const location: Location = { lat: res.latitude, lng: res.longitude, address: "" };
-            return {
-                title: res.title,
-                author: res.author,
-                description: res.description,
-                location,
-                date: res.date,
-                categories: [],
-                meta: null
-            }
-        });
-        console.log(soundClips);
-    });
-
-    res.send('Respond with a resource');
+router.get('/', async function(req, res, next) {
+    const result = await SoundClipsService.getSoundClips();
+    res.send(result);
 });
 
 export default router;

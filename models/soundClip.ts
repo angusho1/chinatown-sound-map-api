@@ -1,4 +1,4 @@
-import Location from './location';
+import Location from './Location';
 
 export default interface SoundClip {
     title: string,

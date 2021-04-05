@@ -1,5 +1,5 @@
-import SoundClip from './soundClip';
-import User from './user';
+import SoundClip from './SoundClip';
+import User from './User';
 
 export default interface Submission {
     dateSubmitted: Date,

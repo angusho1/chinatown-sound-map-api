@@ -1,4 +1,4 @@
-import Submission from './submission';
+import Submission from './Submission';
 
 export default interface User {
     username: string,
