@@ -2,20 +2,12 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import mysql from 'mysql2';
 
-import indexRouter from './routes/index';
-import usersRouter from './routes/users';
-import soundClipsRouter from './routes/sound-clips';
+import indexRoutes from './routes/index.route';
+import usersRoutes from './routes/users.route';
+import soundClipsRoutes from './routes/sound-clips.route';
+import authRoutes from './routes/auth.route';
 import errorHandler from './middleware/error.middleware';
-
-export const pool = mysql.createPool({
-    connectionLimit: 10,
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE
-});
 
 const app = express();
 
@@ -25,9 +17,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/sound-clips', soundClipsRouter);
+app.use(indexRoutes);
+app.use(usersRoutes);
+app.use(soundClipsRoutes);
+app.use(authRoutes);
 app.use(errorHandler);
 
 export default app;

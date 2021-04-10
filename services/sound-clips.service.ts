@@ -1,6 +1,6 @@
 import SoundClip from '../models/SoundClip';
 import Location from '../models/Location';
-import { db } from './db';
+import { db } from './db.service';
 
 export async function getSoundClips(): Promise<SoundClip[]> {
     const results = await db.query('SELECT * FROM SoundClips');
