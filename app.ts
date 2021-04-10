@@ -6,6 +6,7 @@ import logger from 'morgan';
 import indexRoutes from './routes/index.route';
 import usersRoutes from './routes/users.route';
 import soundClipsRoutes from './routes/sound-clips.route';
+import submissionsRoutes from './routes/submissions.route';
 import authRoutes from './routes/auth.route';
 import errorHandler from './middleware/error.middleware';
 
@@ -20,6 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(indexRoutes);
 app.use(usersRoutes);
 app.use(soundClipsRoutes);
+app.use(submissionsRoutes);
 app.use(authRoutes);
 app.use(errorHandler);
 

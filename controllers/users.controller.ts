@@ -1,5 +1,5 @@
 async function getUsers(req, res, next) {
-    res.send('Send a response');
+    res.send('Get some users');
 }
 
 export default { getUsers }
