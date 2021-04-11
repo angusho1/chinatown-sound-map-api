@@ -1,4 +1,4 @@
-import mysql from 'mysql2';
+import mysql, { ResultSetHeader } from 'mysql2';
 import { FieldPacket, RowDataPacket } from 'mysql2';
 
 const pool = mysql.createPool({
@@ -10,9 +10,15 @@ const pool = mysql.createPool({
 });
 
 async function query(sql: string, params?: any): Promise<RowDataPacket[]> {
-    const [rows, ] = await pool.promise().execute(sql, params);
+    const [rows, fields] = await pool.promise().execute(sql, params);
 
     return rows as RowDataPacket[];
 }
 
-export const db = { query };
+async function insert(sql: string, params?: any): Promise<ResultSetHeader> {
+    const [result, fields] = await pool.promise().execute(sql, params);
+
+    return result as ResultSetHeader;
+}
+
+export const db = { query, insert };

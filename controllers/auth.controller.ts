@@ -9,13 +9,9 @@ async function signup(req, res, next) {
     const email = req.body.email;
     const password = req.body.password;
 
-    console.log(`Email: ${email}`);
-    console.log(`Password: ${password}`);
-
     const user: User = await UserService.createUser(email, password);
-    console.log(user);
 
-    res.status(201).json({ user: 'Success' });
+    res.status(201).json({ user });
 }
 
 export default { login, signup };

@@ -5,11 +5,19 @@ import { db } from './db.service';
 export async function createUser(email: string, password: string): Promise<User> {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
+    const sql: string = `INSERT INTO Users (email, hashed_password, creation_date)
+                        VALUES (?, ?, now())`;
+    const params = [email, hashedPassword];
 
-    const result = db.query(`INSERT INTO Users (email, hashed_password, creation_date)
-                             VALUES ('${email}', '${hashedPassword}', now())`);
+    const result = await db.insert(sql, params);
 
-    return null;
+    return {
+        username: '',
+        email, hashedPassword, 
+        creationDate: null, 
+        permission: '',
+        submissions: []
+    };
 }
 
 
