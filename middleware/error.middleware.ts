@@ -1,4 +1,4 @@
-import HttpError from "../utils/HttpError.utils";
+import HttpError from "../utils/HttpError.util";
 
 export default function errorHandler(error, req, res, next) {
     if (!(error instanceof HttpError)) error = new HttpError(500, error.message, error.toString());

@@ -4,9 +4,9 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 
 import indexRoutes from './routes/index.route';
-import usersRoutes from './routes/users.route';
-import soundClipsRoutes from './routes/sound-clips.route';
-import submissionsRoutes from './routes/submissions.route';
+import userRoutes from './routes/user.route';
+import soundClipRoutes from './routes/sound-clip.route';
+import submissionRoutes from './routes/submission.route';
 import authRoutes from './routes/auth.route';
 import errorHandler from './middleware/error.middleware';
 
@@ -19,9 +19,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(indexRoutes);
-app.use(usersRoutes);
-app.use(soundClipsRoutes);
-app.use(submissionsRoutes);
+app.use(userRoutes);
+app.use(soundClipRoutes);
+app.use(submissionRoutes);
 app.use(authRoutes);
 app.use(errorHandler);
 
