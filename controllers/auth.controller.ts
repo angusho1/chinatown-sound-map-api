@@ -6,9 +6,7 @@ async function login(req, res, next) {
 }
 
 async function signup(req, res, next) {
-    const email = req.body.email;
-    const password = req.body.password;
-
+    const { email, password } = req.body;
     const user: User = await UserService.createUser(email, password);
 
     res.status(201).json({ user });
