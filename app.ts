@@ -3,12 +3,12 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 
-import indexRoutes from './routes/index.route';
-import userRoutes from './routes/user.route';
-import soundClipRoutes from './routes/sound-clip.route';
-import submissionRoutes from './routes/submission.route';
-import authRoutes from './routes/auth.route';
-import errorHandler from './middleware/error.middleware';
+import indexRoutes from './src/routes/index.route';
+import userRoutes from './src/routes/user.route';
+import soundClipRoutes from './src/routes/sound-clip.route';
+import submissionRoutes from './src/routes/submission.route';
+import authRoutes from './src/routes/auth.route';
+import errorHandler from './src/middleware/error.middleware';
 
 const app = express();
 
@@ -16,7 +16,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'src/public')));
 
 app.use(indexRoutes);
 app.use(userRoutes);
