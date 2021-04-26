@@ -1,5 +1,6 @@
 import Submission from './Submission';
 import Joi from 'joi';
+import passwordComplexity from 'joi-password-complexity';
 
 export default interface User {
     username: string,
@@ -8,7 +9,7 @@ export default interface User {
     creationDate: Date,
     permission: string,
     submissions: Submission[]
-}
+} 
 
 export const userSchema = Joi.object({
     email: Joi.string()
@@ -17,16 +18,13 @@ export const userSchema = Joi.object({
         .messages({
             'string.email': 'Email address is invalid'
         }),
-    password: Joi.string()
-        .alphanum()
-        .min(8)
-        .max(128)
-        // .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$"))
-        .required()
-        .messages({
-            'string.min': 'Password must contain at least 8 characters',
-            'string.max': 'Password must contain at most 128 chaaracters',
-            'string.alphanum': 'Password must contain alphanumeric characters only'
-            // 'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'
-        })
+    password: passwordComplexity({
+        min: 8,
+        max: 128,
+        lowerCase: 1,
+        upperCase: 1,
+        numeric: 1,
+        symbol: 1,
+        requirementCount: 2,
+    })
 });
