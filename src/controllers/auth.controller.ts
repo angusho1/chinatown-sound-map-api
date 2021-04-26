@@ -7,9 +7,12 @@ async function login(req, res, next) {
 
 async function signup(req, res, next) {
     const { email, password } = req.body;
-    const user: User = await UserService.createUser(email, password);
-
-    res.status(201).json({ user });
+    try {
+        const user: User = await UserService.createUser(email, password);
+        res.status(201).json({ user });
+    } catch (e) {
+        next(e);
+    }
 }
 
 export default { login, signup };

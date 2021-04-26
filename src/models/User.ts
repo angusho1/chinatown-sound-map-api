@@ -5,7 +5,6 @@ import passwordComplexity from 'joi-password-complexity';
 export default interface User {
     username: string,
     email: string,
-    hashedPassword: string,
     creationDate: Date,
     permission: string,
     submissions: Submission[]
@@ -26,5 +25,10 @@ export const userSchema = Joi.object({
         numeric: 1,
         symbol: 1,
         requirementCount: 2,
-    })
+    }),
+    passwordConfirmation: Joi.any()
+        .equal(Joi.ref('password'))
+        .messages({
+            'any.only': 'Passwords do not match'
+        })
 });
