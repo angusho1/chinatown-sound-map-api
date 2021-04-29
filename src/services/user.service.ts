@@ -46,5 +46,23 @@ export async function loginUser(email: string, password: string) {
     return user;
 }
 
+export async function getUserById(id: string) {
+    const sql: string = 'SELECT * FROM Users WHERE id = ? LIMIT 1';
+    const params = [id];
+    const result = await db.query(sql, params);
 
-export default { createUser, loginUser };
+    if (result.length === 0) {
+        throw new HttpError(404, 'User not found');
+    }
+
+    const user = {
+        id: result[0]['id'],
+        username: result[0]['username'],
+        email: result[0]['email'],
+        creationDate: result[0]['creation_date']
+    };
+
+    return user;
+}
+
+export default { createUser, loginUser, getUserById };
