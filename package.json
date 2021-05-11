@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "ts-node ./bin/www",
-    "test": "mocha"
+    "test": "mocha -r ts-node/register --exit test/**/*.ts"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
