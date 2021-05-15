@@ -28,8 +28,16 @@ async function login(req, res, next) {
     }
 }
 
+async function googleLogin(req, accessToken, refreshToken, profile, done) {
+    let currentUser = await UserService.findGoogleUser(profile.id);
+    if (!currentUser) {
+        currentUser = await UserService.createGoogleUser(profile.id, profile._json.email);
+    }
+    done(null, currentUser);
+}
+
 function createToken(userId) {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: MAX_TOKEN_AGE });
 }
 
-export default { login, signup };
+export default { login, signup, googleLogin };

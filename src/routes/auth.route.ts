@@ -3,6 +3,7 @@ import authController from '../controllers/auth.controller';
 import { validateUser } from '../middleware/auth.middleware';
 import passport from 'passport';
 import google from 'passport-google-oauth';
+import UserService from '../services/user.service';
 
 const GoogleStrategy = google.OAuth2Strategy;
 
@@ -11,22 +12,19 @@ const router = express.Router();
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.AUTH_CALLBACK_URL,
+    callbackURL: '/login/google/redirect',
     passReqToCallback: true
-},
-function(req, accessToken, refreshToken, profile, done) {
-    console.log(accessToken);
-    console.log(refreshToken);
-    console.log(profile);
-}));
+}, authController.googleLogin));
 
 router.post('/login', authController.login);
-router.get('/login/google', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }))
-router.get('/login/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  function(req, res) {
-    res.redirect('/');
-  });
+router.get('/login/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/login/google/redirect', 
+  passport.authenticate('google', { failureRedirect: '/login', successRedirect: '/' }));
 router.post('/signup', validateUser, authController.signup);
+
+passport.serializeUser((user, done) => done(null, user.id));
+passport.deserializeUser((id, done) => {
+  UserService.getUserById(id).then((user) => done(null, user));
+});
 
 export default router;

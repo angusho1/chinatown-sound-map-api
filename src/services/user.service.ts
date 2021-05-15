@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import userController from '../controllers/user.controller';
 import User from '../models/User';
 import HttpError from '../utils/HttpError.util';
 import { db } from './db.service';
@@ -65,4 +66,37 @@ export async function getUserById(id: string) {
     return user;
 }
 
-export default { createUser, loginUser, getUserById };
+export async function findGoogleUser(id: string) {
+    const sql: string = 'SELECT * FROM Users WHERE google_id = ? LIMIT 1';
+    const params = [id];
+    const result = await db.query(sql, params);
+
+    if (result.length === 0) {
+        return null;
+    }
+
+    const user = {
+        id: result[0]['id'],
+        username: result[0]['username'],
+        email: result[0]['email'],
+        creationDate: result[0]['creation_date'],
+        google_id: result[0]['google_id']
+    };
+
+    return user;
+}
+
+export async function createGoogleUser(googleId: string, email: string) {
+    const sql: string = `INSERT INTO Users (google_id, email, creation_date)
+    VALUES (?, ?, now())`;
+    const params = [googleId, email];
+
+    await db.insert(sql, params)
+        .catch(e => { 
+            if (e.code === 'ER_DUP_ENTRY') throw new HttpError(409, e.sqlMessage, e);
+        });
+
+    return await findGoogleUser(googleId);
+}
+
+export default { createUser, loginUser, getUserById, findGoogleUser, createGoogleUser };
