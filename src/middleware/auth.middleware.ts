@@ -1,6 +1,5 @@
 import { userSchema } from '../models/User';
 import HttpError from '../utils/HttpError.util';
-import UserService from '../services/user.service';
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 

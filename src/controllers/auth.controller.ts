@@ -1,14 +1,16 @@
 import User from '../models/User';
-import UserService from '../services/user.service';
+import AuthService from '../services/auth.service';
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import HttpError from '../utils/HttpError.util';
+import passport from 'passport';
 
 const MAX_TOKEN_AGE = 120;
 
 async function signup(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
     try {
-        const userId: number = await UserService.createUser(email, password);
+        const userId: number = await AuthService.createUser(email, password);
         const token = createToken(userId);
         res.cookie('jwt', token, { httpOnly: true, maxAge: MAX_TOKEN_AGE * 1000 });
         res.status(201).json({ userId });
@@ -20,7 +22,7 @@ async function signup(req: Request, res: Response, next: NextFunction) {
 async function login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
     try {
-        const user = await UserService.loginUser(email, password);
+        const user = await AuthService.loginUser(email, password);
         const token = createToken(user.id);
         res.cookie('jwt', token, { httpOnly: true, maxAge: MAX_TOKEN_AGE * 1000 });
         res.status(200).json({ userId: user.id });
@@ -30,15 +32,39 @@ async function login(req: Request, res: Response, next: NextFunction) {
 }
 
 async function googleLogin(req: Request, accessToken, refreshToken, profile, done) {
-    let currentUser = await UserService.findGoogleUser(profile.id);
+    let currentUser = await AuthService.findGoogleUser(profile.id);
     if (!currentUser) {
-        currentUser = await UserService.createGoogleUser(profile.id, profile._json.email);
+        currentUser = await AuthService.createGoogleUser(profile.id, profile._json.email);
     }
     const token = createToken(currentUser.id);
-    done(null, currentUser);
+    done(null, currentUser, { nextRoute: '/auth-test' });
+}
+
+function googleLoginCallback(req: Request, res: Response, next: NextFunction) {
+    passport.authenticate('google', { failureRedirect: '/login', session: false },
+        (err, user, info) => {
+            const { nextRoute } = info;
+            if (err) return next(err);
+    
+            if (nextRoute) {
+                // const user: any = req.user;
+                const token = createToken(user.id);
+                res.cookie('jwt', token, { httpOnly: true, maxAge: MAX_TOKEN_AGE * 1000 });
+                // res.redirect('/auth-test');
+                return res.redirect(nextRoute);
+            } else {
+                req.logIn(user, err => {
+                    if (err) return next(err);
+                    return res.redirect('/');
+                });
+            }
+        })(req, res, next);
 }
 
 function sendToken(req: Request, res: Response, next: NextFunction) {
+    if (!req.user) {
+        next(new HttpError(401, 'No valid user'));
+    }
     const user: any = req.user;
     const token = createToken(user.id);
     res.cookie('jwt', token, { httpOnly: true, maxAge: MAX_TOKEN_AGE * 1000 });
@@ -49,4 +75,4 @@ function createToken(userId: number) {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: MAX_TOKEN_AGE });
 }
 
-export default { login, signup, googleLogin, sendToken };
+export default { login, signup, googleLogin, googleLoginCallback, sendToken };

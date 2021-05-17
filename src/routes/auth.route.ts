@@ -3,7 +3,7 @@ import authController from '../controllers/auth.controller';
 import { validateUser } from '../middleware/auth.middleware';
 import passport from 'passport';
 import google from 'passport-google-oauth';
-import UserService from '../services/user.service';
+import UserService from '../services/auth.service';
 
 const GoogleStrategy = google.OAuth2Strategy;
 
@@ -18,9 +18,9 @@ passport.use(new GoogleStrategy({
 
 router.post('/login', authController.login);
 router.get('/login/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/login/google/redirect', 
-  passport.authenticate('google', { failureRedirect: '/login', session: false }),
-  authController.sendToken);
+router.get('/login/google/redirect', authController.googleLoginCallback);
+  // passport.authenticate('google', { failureRedirect: '/login', session: false }),
+  // authController.sendToken);
 router.post('/signup', validateUser, authController.signup);
 
 passport.serializeUser((user: any, done) => done(null, user.id));
