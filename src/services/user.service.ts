@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import userController from '../controllers/user.controller';
 import User from '../models/User';
 import HttpError from '../utils/HttpError.util';
 import { db } from './db.service';

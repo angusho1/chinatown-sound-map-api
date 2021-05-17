@@ -4,6 +4,6 @@ import { requireAuth } from '../middleware/auth.middleware';
 
 const router = express.Router();
 
-router.get('/sound-clips', soundClipController.getSoundClips);
+router.get('/sound-clips', requireAuth, soundClipController.getSoundClips);
 
 export default router;

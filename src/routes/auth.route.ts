@@ -19,13 +19,12 @@ passport.use(new GoogleStrategy({
 router.post('/login', authController.login);
 router.get('/login/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/login/google/redirect', 
-  // passport.authenticate('google', { failureRedirect: '/login', successRedirect: '/auth-test' }));
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
   authController.sendToken);
 router.post('/signup', validateUser, authController.signup);
 
-passport.serializeUser((user, done) => done(null, user.id));
-passport.deserializeUser((id, done) => {
+passport.serializeUser((user: any, done) => done(null, user.id));
+passport.deserializeUser((id: string, done) => {
   UserService.getUserById(id).then((user) => done(null, user));
 });
 

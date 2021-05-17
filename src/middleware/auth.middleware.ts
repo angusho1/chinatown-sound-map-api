@@ -2,8 +2,9 @@ import { userSchema } from '../models/User';
 import HttpError from '../utils/HttpError.util';
 import UserService from '../services/user.service';
 import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
 
-export function validateUser(req, res, next) {
+export function validateUser(req: Request, res: Response, next: NextFunction) {
     const { email, password, passwordConfirmation } = req.body;
     const validation = userSchema.validate({ email, password, passwordConfirmation });
     if (validation.hasOwnProperty('error')) {
@@ -13,7 +14,7 @@ export function validateUser(req, res, next) {
     next();
 }
 
-export function requireAuth(req, res, next) {
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
     const token = req.cookies.jwt;
 
     if (token) {

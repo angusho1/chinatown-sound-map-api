@@ -25,6 +25,8 @@
     "@types/jsonwebtoken": "^8.5.1",
     "@types/mocha": "^8.2.2",
     "@types/node": "^14.14.34",
+    "@types/passport": "^1.0.6",
+    "@types/passport-google-oauth": "^1.0.41",
     "chai": "^4.3.4",
     "chai-http": "^4.3.0",
     "mocha": "^8.4.0",
