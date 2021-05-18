@@ -65,8 +65,9 @@ export async function getUserById(id: string) {
     return user;
 }
 
-export async function findGoogleUser(id: string) {
-    const sql: string = 'SELECT * FROM Users WHERE google_id = ? LIMIT 1';
+export async function findOAuthUser(id: string, provider: string) {
+    const providerField = `${provider}_id`;
+    const sql: string = `SELECT * FROM Users WHERE ${providerField} = ? LIMIT 1`;
     const params = [id];
     const result = await db.query(sql, params);
 
@@ -79,23 +80,24 @@ export async function findGoogleUser(id: string) {
         username: result[0]['username'],
         email: result[0]['email'],
         creationDate: result[0]['creation_date'],
-        google_id: result[0]['google_id']
+        [providerField]: result[0][providerField]
     };
 
     return user;
 }
 
-export async function createGoogleUser(googleId: string, email: string) {
-    const sql: string = `INSERT INTO Users (google_id, email, creation_date)
+export async function createOAuthUser(providerId: string, email: string, provider: string) {
+    const providerField = `${provider}_id`;
+    const sql: string = `INSERT INTO Users (${providerField}, email, creation_date)
     VALUES (?, ?, now())`;
-    const params = [googleId, email];
+    const params = [providerId, email];
 
     await db.insert(sql, params)
         .catch(e => { 
             if (e.code === 'ER_DUP_ENTRY') throw new HttpError(409, e.sqlMessage, e);
         });
 
-    return await findGoogleUser(googleId);
+    return await findOAuthUser(providerId, provider);
 }
 
-export default { createUser, loginUser, getUserById, findGoogleUser, createGoogleUser };
+export default { createUser, loginUser, getUserById, findOAuthUser, createOAuthUser };

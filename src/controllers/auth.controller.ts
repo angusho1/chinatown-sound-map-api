@@ -31,34 +31,35 @@ async function login(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-async function googleLogin(req: Request, accessToken, refreshToken, profile, done) {
-    let currentUser = await AuthService.findGoogleUser(profile.id);
+async function socialLogin(req: Request, accessToken, refreshToken, profile, done) {
+    let currentUser = await AuthService.findOAuthUser(profile.id, profile.provider);
     if (!currentUser) {
-        currentUser = await AuthService.createGoogleUser(profile.id, profile._json.email);
+        currentUser = await AuthService.createOAuthUser(profile.id, profile._json.email, profile.provider);
     }
     const token = createToken(currentUser.id);
     done(null, currentUser, { nextRoute: '/auth-test' });
 }
 
-function googleLoginCallback(req: Request, res: Response, next: NextFunction) {
-    passport.authenticate('google', { failureRedirect: '/login', session: false },
-        (err, user, info) => {
-            const { nextRoute } = info;
-            if (err) return next(err);
-    
-            if (nextRoute) {
-                // const user: any = req.user;
-                const token = createToken(user.id);
-                res.cookie('jwt', token, { httpOnly: true, maxAge: MAX_TOKEN_AGE * 1000 });
-                // res.redirect('/auth-test');
-                return res.redirect(nextRoute);
-            } else {
-                req.logIn(user, err => {
-                    if (err) return next(err);
-                    return res.redirect('/');
-                });
-            }
-        })(req, res, next);
+function socialLoginCallback(options: any) {
+    const { provider } = options;
+    return function (req: Request, res: Response, next: NextFunction) {
+        passport.authenticate(provider, { failureRedirect: '/login', session: false },
+            (err, user, info) => {
+                const { nextRoute } = info;
+                if (err) return next(err);
+        
+                if (nextRoute) {
+                    const token = createToken(user.id);
+                    res.cookie('jwt', token, { httpOnly: true, maxAge: MAX_TOKEN_AGE * 1000 });
+                    return res.redirect(nextRoute);
+                } else {
+                    req.logIn(user, err => {
+                        if (err) return next(err);
+                        return res.redirect('/');
+                    });
+                }
+            })(req, res, next);
+    }
 }
 
 function sendToken(req: Request, res: Response, next: NextFunction) {
@@ -75,4 +76,4 @@ function createToken(userId: number) {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: MAX_TOKEN_AGE });
 }
 
-export default { login, signup, googleLogin, googleLoginCallback, sendToken };
+export default { login, signup, socialLogin, socialLoginCallback, sendToken };
