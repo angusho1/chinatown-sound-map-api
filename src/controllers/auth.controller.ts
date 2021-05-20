@@ -62,18 +62,8 @@ function socialLoginCallback(options: any) {
     }
 }
 
-function sendToken(req: Request, res: Response, next: NextFunction) {
-    if (!req.user) {
-        next(new HttpError(401, 'No valid user'));
-    }
-    const user: any = req.user;
-    const token = createToken(user.id);
-    res.cookie('jwt', token, { httpOnly: true, maxAge: MAX_TOKEN_AGE * 1000 });
-    res.redirect('/auth-test');
-}
-
 function createToken(userId: number) {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: MAX_TOKEN_AGE });
 }
 
-export default { login, signup, socialLogin, socialLoginCallback, sendToken };
+export default { login, signup, socialLogin, socialLoginCallback };

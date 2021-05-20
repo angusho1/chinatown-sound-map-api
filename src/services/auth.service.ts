@@ -6,7 +6,7 @@ import { db } from './db.service';
 export async function createUser(email: string, password: string): Promise<number> {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
-    const sql: string = `INSERT INTO Users (email, hashed_password, creation_date)
+    const sql: string = `INSERT INTO users (email, hashed_password, creation_date)
                         VALUES (?, ?, now())`;
     const params = [email, hashedPassword];
     let userId: number;
@@ -21,7 +21,7 @@ export async function createUser(email: string, password: string): Promise<numbe
 }
 
 export async function loginUser(email: string, password: string) {
-    const sql: string = 'SELECT * FROM Users WHERE email = ? LIMIT 1';
+    const sql: string = 'SELECT * FROM users WHERE email = ? LIMIT 1';
     const params = [email];
     const result = await db.query(sql, params);
 
@@ -47,7 +47,7 @@ export async function loginUser(email: string, password: string) {
 }
 
 export async function getUserById(id: string) {
-    const sql: string = 'SELECT * FROM Users WHERE id = ? LIMIT 1';
+    const sql: string = 'SELECT * FROM users WHERE id = ? LIMIT 1';
     const params = [id];
     const result = await db.query(sql, params);
 
@@ -67,7 +67,7 @@ export async function getUserById(id: string) {
 
 export async function findOAuthUser(id: string, provider: string) {
     const providerField = `${provider}_id`;
-    const sql: string = `SELECT * FROM Users WHERE ${providerField} = ? LIMIT 1`;
+    const sql: string = `SELECT * FROM users WHERE ${providerField} = ? LIMIT 1`;
     const params = [id];
     const result = await db.query(sql, params);
 
@@ -88,7 +88,7 @@ export async function findOAuthUser(id: string, provider: string) {
 
 export async function createOAuthUser(providerId: string, email: string, provider: string) {
     const providerField = `${provider}_id`;
-    const sql: string = `INSERT INTO Users (${providerField}, email, creation_date)
+    const sql: string = `INSERT INTO users (${providerField}, email, creation_date)
     VALUES (?, ?, now())`;
     const params = [providerId, email];
 

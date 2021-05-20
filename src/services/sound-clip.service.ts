@@ -3,7 +3,7 @@ import Location from '../models/Location';
 import { db } from './db.service';
 
 export async function getSoundClips(): Promise<SoundClip[]> {
-    const results = await db.query('SELECT * FROM SoundClips');
+    const results = await db.query('SELECT * FROM sound_clips');
 
     const soundClips: SoundClip[] = results.map(res => {
         const location: Location = { lat: res.latitude, lng: res.longitude, address: "" };
