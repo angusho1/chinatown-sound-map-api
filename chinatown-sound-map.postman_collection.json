@@ -82,6 +82,44 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "login/google",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{base_url}}/login/google",
+					"protocol": "http",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"login",
+						"google"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login/facebook",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{base_url}}/login/facebook",
+					"protocol": "http",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"login",
+						"facebook"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"variable": [

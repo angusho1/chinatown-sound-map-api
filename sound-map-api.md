@@ -5,13 +5,31 @@ tags: []
 
 # API
 
-## Users
+## Auth
+
+### Signup
+
+```POST``` ```/signup```
+
+Signs the user up using an email and password, and sends back a JWT cookie to log the user in
 
 ### Login
 
-```POST``` ```/user/login```
+```POST``` ```/login```
 
-Logs the user in
+Logs the user in and sends back a JWT in a cookie
+
+### Google Login (OAuth)
+
+```GET``` ```/login/google```
+
+Prompt a user to sign in through their Google account
+
+### Facebook Login (OAuth)
+
+```GET``` ```/login/facebook```
+
+Prompt a user to sign in through their Google account
 
 ### Get user by id
 ```GET```  ```/user/{user_id}```
