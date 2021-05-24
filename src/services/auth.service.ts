@@ -65,11 +65,24 @@ export async function getUserById(id: string) {
     return user;
 }
 
-export async function findOAuthUser(id: string, provider: string) {
-    const providerField = `${provider}_id`;
-    const sql: string = `SELECT * FROM users WHERE ${providerField} = ? LIMIT 1`;
-    const params = [id];
+export async function findOAuthUser(providerUserId: string, provider: string) {
+    const sql: string = 
+        `SELECT
+            users.id,
+            users.username,
+            users.email,
+            users.creation_date,
+            auth_identities.provider_user_key,
+            auth_providers.name
+        FROM auth_identities
+        INNER JOIN users ON users.id = auth_identities.user_id
+        INNER JOIN auth_providers ON auth_providers.id = auth_identities.provider_id
+        WHERE auth_identities.provider_user_key = ? AND auth_providers.name = ? LIMIT 1`;
+    const params = [providerUserId, provider];
     const result = await db.query(sql, params);
+
+    console.log('finding the result');
+    console.log(result);
 
     if (result.length === 0) {
         return null;
@@ -80,24 +93,27 @@ export async function findOAuthUser(id: string, provider: string) {
         username: result[0]['username'],
         email: result[0]['email'],
         creationDate: result[0]['creation_date'],
-        [providerField]: result[0][providerField]
     };
 
     return user;
 }
 
-export async function createOAuthUser(providerId: string, email: string, provider: string) {
-    const providerField = `${provider}_id`;
-    const sql: string = `INSERT INTO users (${providerField}, email, creation_date)
-    VALUES (?, ?, now())`;
-    const params = [providerId, email];
+export async function createOAuthUser(providerUserId: string, email: string, provider: string) {
+    const providerIdResult = await db.query(`SELECT id FROM auth_providers WHERE name = ?`, [provider]);
+    if (providerIdResult.length === 0) throw new HttpError(404, `Social login provider "${provider}" is not valid.`);
+    const providerId = providerIdResult[0]['id'];
 
-    await db.insert(sql, params)
-        .catch(e => { 
-            if (e.code === 'ER_DUP_ENTRY') throw new HttpError(409, e.sqlMessage, e);
-        });
+    const insertUserResult = await db.insert(`INSERT INTO users (username, creation_date) VALUES (?, now())`, [email]);
+    const userId = insertUserResult.insertId;
 
-    return await findOAuthUser(providerId, provider);
+    const insertAuthIdentityResult = await db.insert(`INSERT INTO auth_identities (provider_user_key, user_id, provider_id) VALUES (?, ?, ?)`, [providerUserId, userId, providerId]);
+
+    // await db.insert(sql, params)
+    //     .catch(e => { 
+    //         if (e.code === 'ER_DUP_ENTRY') throw new HttpError(409, e.sqlMessage, e);
+    //     });
+
+    return await findOAuthUser(providerUserId, provider);
 }
 
 export default { createUser, loginUser, getUserById, findOAuthUser, createOAuthUser };
