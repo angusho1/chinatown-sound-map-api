@@ -20,7 +20,7 @@ export async function createUser(email: string, password: string): Promise<numbe
     return userId;
 }
 
-export async function loginUser(email: string, password: string) {
+export async function validateUser(email: string, password: string) {
     const sql: string = 'SELECT * FROM users WHERE email = ? LIMIT 1';
     const params = [email];
     const result = await db.query(sql, params);
@@ -103,12 +103,10 @@ export async function createOAuthUser(providerUserId: string, email: string, pro
     if (providerIdResult.length === 0) throw new HttpError(404, `Social login provider "${provider}" is not valid.`);
     const providerId = providerIdResult[0]['id'];
 
-    const insertUserResult = await db.insert(`INSERT INTO users (username, creation_date) VALUES (?, now())`, [email]);
+    const insertUserResult = await db.insert(`INSERT INTO users (email, creation_date) VALUES (?, now())`, [email]);
     const userId = insertUserResult.insertId;
 
     const insertAuthIdentityResult = await db.insert(`INSERT INTO auth_identities (provider_user_key, user_id, provider_id) VALUES (?, ?, ?)`, [providerUserId, userId, providerId]);
-
-    // await db.insert(sql, params)
     //     .catch(e => { 
     //         if (e.code === 'ER_DUP_ENTRY') throw new HttpError(409, e.sqlMessage, e);
     //     });
@@ -116,4 +114,4 @@ export async function createOAuthUser(providerUserId: string, email: string, pro
     return await findOAuthUser(providerUserId, provider);
 }
 
-export default { createUser, loginUser, getUserById, findOAuthUser, createOAuthUser };
+export default { createUser, validateUser, getUserById, findOAuthUser, createOAuthUser };

@@ -22,7 +22,7 @@ async function signup(req: Request, res: Response, next: NextFunction) {
 async function login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
     try {
-        const user = await AuthService.loginUser(email, password);
+        const user = await AuthService.validateUser(email, password);
         const token = createToken(user.id);
         res.cookie('jwt', token, { httpOnly: true, maxAge: MAX_TOKEN_AGE * 1000 });
         res.status(200).json({ userId: user.id });
@@ -36,7 +36,6 @@ async function socialLogin(req: Request, accessToken, refreshToken, profile, don
     if (!currentUser) {
         currentUser = await AuthService.createOAuthUser(profile.id, profile._json.email, profile.provider);
     }
-    const token = createToken(currentUser.id);
     done(null, currentUser, { nextRoute: '/auth-test' });
 }
 
