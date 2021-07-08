@@ -4,6 +4,11 @@ import HttpError from '../utils/HttpError.util';
 import { db } from './db.service';
 
 export async function createUser(email: string, password: string): Promise<number> {
+    const userExists: boolean = await doesUserExist(email);
+    if (userExists) {
+        throw new HttpError(409, 'An account with this email already exists.');
+    }
+
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
     const sql: string = `INSERT INTO users (email, hashed_password, creation_date)
@@ -11,13 +16,23 @@ export async function createUser(email: string, password: string): Promise<numbe
     const params = [email, hashedPassword];
     let userId: number;
 
-    await db.insert(sql, params)
-        .catch(e => { 
-            if (e.code === 'ER_DUP_ENTRY') throw new HttpError(409, e.sqlMessage, e);
-        });
+    await db.insert(sql, params);
     userId = (await db.query('SELECT LAST_INSERT_ID()'))[0]['LAST_INSERT_ID()'];
 
     return userId;
+}
+
+export async function doesUserExist(email: string): Promise<boolean> {
+    const sql: string = `SELECT users.id, users.email, auth_identities.provider_user_key
+        FROM users
+        LEFT JOIN auth_identities ON users.id = auth_identities.user_id
+        WHERE users.email = ? and auth_identities.provider_user_key IS NULL;`;
+    const params = [email];
+    const result = await db.query(sql, params);
+    if (result.length > 0) {
+        return true;
+    }
+    return false;
 }
 
 export async function validateUser(email: string, password: string) {
