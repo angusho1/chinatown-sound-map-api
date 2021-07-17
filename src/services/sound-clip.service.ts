@@ -6,13 +6,14 @@ export async function getSoundClips(): Promise<SoundClip[]> {
     const results = await db.query('SELECT * FROM sound_clips');
 
     const soundClips: SoundClip[] = results.map(res => {
-        const location: Location = { lat: res.latitude, lng: res.longitude, address: "" };
+        const location: Location = { lat: parseFloat(res.latitude), lng: parseFloat(res.longitude), address: "" };
         return {
             title: res.title,
             author: res.author,
             description: res.description,
             location,
             date: res.date,
+            content: res.content,
             categories: [],
             meta: {
                 plays: 0,

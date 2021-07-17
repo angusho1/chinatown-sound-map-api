@@ -6,6 +6,7 @@ export default interface SoundClip {
     description: string,
     location: Location,
     date: Date,
+    content: string,
     categories: string[],
     meta: Meta
 }
