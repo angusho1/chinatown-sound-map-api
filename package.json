@@ -5,7 +5,7 @@
   "scripts": {
     "start": "ts-node ./bin/www",
     "dev": "nodemon start --ext 'ts,json' ",
-    "test": "mocha -r ts-node/register --exit test/**/*.ts"
+    "test": "mocha --require mocha-suppress-logs -r ts-node/register --exit test/**/*.ts"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -33,6 +33,7 @@
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",
     "mocha": "^10.0.0",
+    "mocha-suppress-logs": "^0.3.1",
     "nodemon": "^2.0.18",
     "ts-node": "^10.8.2",
     "typescript": "^4.7.4"
