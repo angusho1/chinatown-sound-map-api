@@ -1,16 +1,9 @@
 import express from 'express';
 import submissionController from '../controllers/submission.controller';
 import multer from 'multer';
+import CustomStorageEngine from '../utils/StorageEngine.util';
 
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, 'src/public/clips');
-    },
-    filename: function (req, file, cb) {
-        console.log(file);
-        cb(null , file.originalname );
-    }
-});
+const storage = new CustomStorageEngine();
 
 const upload = multer({ storage: storage });
 
