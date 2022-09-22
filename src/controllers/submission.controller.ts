@@ -16,7 +16,8 @@ export function fileFilter(req, file, cb) {
 const upload = multer({ storage: storage, limits: { fileSize: MAX_FILE_UPLOAD_SIZE }, fileFilter });
 
 const uploadFiles = upload.fields([
-    { name: 'recording', maxCount: 1},
+    { name: 'recording', maxCount: 1 },
+    { name: 'image', maxCount: 3 }
 ]);
 
 async function getSubmissions(req: Request, res: Response, next: NextFunction) {
