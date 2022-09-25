@@ -8,6 +8,7 @@
     "test": "mocha --require mocha-suppress-logs -r ts-node/register --exit test/**/*.ts"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.11.0",
     "bcrypt": "^5.0.1",
     "cookie-parser": "~1.4.6",
     "debug": "~4.3.4",
