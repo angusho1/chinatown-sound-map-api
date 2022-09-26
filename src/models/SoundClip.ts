@@ -1,5 +1,6 @@
 import Location from './Location';
 
+// Legacy
 export default interface SoundClip {
     title: string,
     author: string,

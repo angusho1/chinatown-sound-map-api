@@ -1,13 +1,11 @@
-import SoundClip from './SoundClip';
-import User from './User';
+import SoundRecording from './SoundRecording';
 
 export default interface Submission {
-    dateSubmitted: Date,
-    dateApproved: Date,
-    dateRejected: Date,
-    soundClip: SoundClip,
+    id: string,
+    soundRecording: SoundRecording,
+    email: string,
+    dateCreated: Date,
     status: SubmissionStatus,
-    user: User
 }
 
 export enum SubmissionStatus {

@@ -1,5 +1,6 @@
 USE chinatown_sound_map;
 
+-- Legacy sound recordings
 CREATE TABLE sound_clips(
     id INT AUTO_INCREMENT,
     title VARCHAR(100),
@@ -10,6 +11,25 @@ CREATE TABLE sound_clips(
     latitude DECIMAL(19, 15),
     longitude DECIMAL(19, 15),
     PRIMARY KEY (id)
+);
+
+CREATE TABLE sound_recordings(
+    id VARCHAR(36),
+    title VARCHAR(100) NOT NULL,
+    file_location VARCHAR(200) NOT NULL,
+    author VARCHAR(100),
+    description TEXT,
+    date_recorded DATE,
+    latitude DECIMAL(19, 15),
+    longitude DECIMAL(19, 15),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE sound_recording_images(
+    sound_recording_id VARCHAR(36),
+    file_location VARCHAR(200) NOT NULL,
+    PRIMARY KEY (sound_recording_id, file_location),
+    FOREIGN KEY (sound_recording_id) REFERENCES sound_recordings(id) ON DELETE CASCADE
 );
 
 CREATE TABLE locations(
@@ -31,15 +51,12 @@ CREATE TABLE users(
 
 CREATE TABLE submissions(
     id INT AUTO_INCREMENT,
-    date_submitted TIMESTAMP,
-    date_approved TIMESTAMP,
-    date_rejected TIMESTAMP,
-    soundclip_id INT,
-    status TINYINT(1),
-    user_id INT,
+    sound_recording_id VARCHAR(36),
+    email VARCHAR(50) NOT NULL,
+    date_created TIMESTAMP NOT NULL,
+    status TINYINT NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (soundclip_id) REFERENCES sound_clips(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (sound_recording_id) REFERENCES sound_recordings(id) ON DELETE SET NULL
 );
 
 CREATE TABLE auth_providers(
