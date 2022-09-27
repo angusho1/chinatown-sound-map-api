@@ -56,7 +56,7 @@ export async function createSubmission(req: Request, res: Response) {
             }
         }
 
-        res.status(200).send(resBody);
+        res.status(201).send(resBody);
     } catch (e) {
         console.log('errr', e);
         throw new HttpError(400, 'Unable to create submission', e);

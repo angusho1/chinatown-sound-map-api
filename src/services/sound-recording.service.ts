@@ -29,18 +29,20 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
         params
     );
 
-    const imageInserts: Promise<any>[] = [];
-    for (let imgLocation of imageLocations) {
-        imageInserts.push(db.insert(
-            `INSERT INTO sound_recording_images (sound_recording_id, file_location) VALUES (?, ?)`,
-            [
-                soundRecordingId,
-                imgLocation
-            ]
-        ));
+    if (imageLocations && Array.isArray(imageLocations)) {
+        const imageInserts: Promise<any>[] = [];
+        for (let imgLocation of imageLocations) {
+            imageInserts.push(db.insert(
+                `INSERT INTO sound_recording_images (sound_recording_id, file_location) VALUES (?, ?)`,
+                [
+                    soundRecordingId,
+                    imgLocation
+                ]
+            ));
+        }
+    
+        await Promise.all(imageInserts);
     }
-
-    await Promise.all(imageInserts);
 
     const result = await db.query(`SELECT * FROM sound_recordings WHERE id = ?`, [soundRecordingId]);
 

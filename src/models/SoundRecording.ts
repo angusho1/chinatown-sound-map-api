@@ -8,5 +8,5 @@ export default interface SoundRecording {
     location: Location,
     dateRecorded?: Date,
     fileLocation: string,
-    imageFiles: string[]
+    imageFiles?: string[]
 }
