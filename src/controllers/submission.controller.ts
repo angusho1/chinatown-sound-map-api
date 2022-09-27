@@ -4,6 +4,7 @@ import multer from 'multer';
 import CustomStorageEngine, { MAX_FILE_UPLOAD_SIZE } from '../utils/StorageEngine.util';
 import * as SubmissionService from '../services/submission.service';
 import * as SoundRecordingService from '../services/sound-recording.service';
+import { SubmissionStatus } from '../models/Submission';
 
 const storage = new CustomStorageEngine();
 
@@ -42,10 +43,20 @@ export async function createSubmission(req: Request, res: Response) {
             imageFiles: req.body.imageFiles
         });
 
-        console.log('soundRecording', soundRecording);
+        const submissionResult = await SubmissionService.createSubmission({
+            soundRecordingId: soundRecording.id,
+            email: req.body.email,
+            status: SubmissionStatus.Pending
+        });
+        
+        const resBody = {
+            result: {
+                ...soundRecording,
+                ...submissionResult
+            }
+        }
 
-        const submissionResult = await SubmissionService.createSubmission(); // TODO: Implement
-        res.send({ result: submissionResult });
+        res.status(200).send(resBody);
     } catch (e) {
         console.log('errr', e);
         throw new HttpError(400, 'Unable to create submission', e);

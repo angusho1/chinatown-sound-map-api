@@ -42,7 +42,7 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
 
     await Promise.all(imageInserts);
 
-    const result = await db.query('SELECT * FROM sound_recordings');
+    const result = await db.query(`SELECT * FROM sound_recordings WHERE id = ?`, [soundRecordingId]);
 
     return result[0] as CreateSoundRecordingResult;
 }
