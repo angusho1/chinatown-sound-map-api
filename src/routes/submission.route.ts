@@ -1,9 +1,9 @@
 import express from 'express';
-import submissionController, { fileFilter } from '../controllers/submission.controller';
+import * as submissionController from '../controllers/submission.controller';
 
 const router = express.Router();
 
 router.get('/submissions', submissionController.getSubmissions);
-router.post('/submissions', submissionController.uploadFiles, submissionController.postSubmissions);
+router.post('/submissions', submissionController.uploadFiles, submissionController.createSubmission);
 
 export default router;
