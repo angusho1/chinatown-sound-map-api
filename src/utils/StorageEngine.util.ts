@@ -4,6 +4,7 @@ import { StorageEngine } from 'multer';
 import { ParsedQs } from 'qs';
 import fs from 'fs';
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import { v4 as uuidv4 } from 'uuid';
 
 export const MAX_FILE_UPLOAD_SIZE = 5 * (10 ** 6);
 
@@ -33,10 +34,20 @@ export default class CustomStorageEngine implements StorageEngine {
         break;
     }
 
-    const blockBlobClient = containerClient.getBlockBlobClient(file.originalname);
+    const blobName = `${uuidv4()}_${file.originalname}`;
+
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
     blockBlobClient.uploadStream(file.stream)
       .then(uploadResult => {
-        console.log('uploadResult', uploadResult);
+        if (file.fieldname === RECORDING_FIELDNAME) {
+          req.body.fileLocation = blobName;
+        } else if (file.fieldname === IMAGE_FIELDNAME) {
+          if (req.body.imageFiles && Array.isArray(req.body.imageFiles)) {
+            req.body.imageFiles.push(blobName);
+          } else {
+            req.body.imageFiles = [blobName];
+          }
+        }
         cb(null);
       })
       .catch(e => {
