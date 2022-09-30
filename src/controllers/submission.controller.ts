@@ -1,16 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import HttpError from '../utils/HttpError.util';
 import multer from 'multer';
-import CustomStorageEngine, { MAX_FILE_UPLOAD_SIZE } from '../utils/StorageEngine.util';
+import AzureStorageEngine, { MAX_FILE_UPLOAD_SIZE } from '../utils/StorageEngine.util';
 import * as SubmissionService from '../services/submission.service';
 import * as SoundRecordingService from '../services/sound-recording.service';
 import { SubmissionStatus } from '../models/Submission';
 
-const storage = new CustomStorageEngine();
+const storage = new AzureStorageEngine();
 
 export function fileFilter(req, file, cb) {
-    if (parseInt(req.headers["content-length"]) > MAX_FILE_UPLOAD_SIZE) {
-        cb(new HttpError(400, 'File size is too large (max allowed size per file is 5MB).'), false);
+    if (parseInt(req.headers["content-length"]) > MAX_FILE_UPLOAD_SIZE * 5) {
+        cb(new HttpError(400, 'Request is too large (max allowed size per file is 5MB).'), false);
     } else {
         cb(null, true);
     }
