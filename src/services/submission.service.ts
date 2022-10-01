@@ -4,14 +4,27 @@ import { CreateSubmissionInput, CreateSubmissionResult } from '../types/submissi
 import HttpError from '../utils/HttpError.util';
 
 export async function getSubmissions(): Promise<Submission[]> {
-    const rows = await db.query(
-        `SELECT * FROM submissions`
-    );
+    const rows = await db.query(`
+        SELECT s.id, s.email, s.date_created, s.status, sound_recording_id, sr.title, sr.author, sr.description, sr.latitude, sr.longitude, sr.date_recorded, sr.file_location
+        FROM submissions s
+        JOIN sound_recordings sr ON s.sound_recording_id = sr.id
+    `);
 
     const submissions: Submission[] = rows.map(row => {
         return {
             id: row.id,
-            soundRecording: null,
+            soundRecording: {
+                id: row.sound_recording_id,
+                title: row.title,
+                author: row.author,
+                description: row.description,
+                location: {
+                    lat: parseFloat(row.latitude), 
+                    lng: parseFloat(row.longitude)
+                },
+                dateRecorded: row.date_recorded,
+                fileLocation: row.file_location
+            },
             email: row.email,
             dateCreated: row.date_created,
             status: SubmissionStatusMap[parseInt(row.status)]
@@ -60,6 +73,11 @@ export async function publishSubmission(submissionId: number) {
             new Date()
         ]
     );
+
+    await db.update(`
+        UPDATE submissions SET status = ${SubmissionStatus.Approved} 
+        WHERE id = ?
+    `, [submissionId]);
 
     return `Successfully published sound recording with id '${submissionId}'`;
 }

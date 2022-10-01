@@ -21,4 +21,10 @@ async function insert(sql: string, params?: any): Promise<ResultSetHeader> {
     return result as ResultSetHeader;
 }
 
-export const db = { query, insert };
+async function update(sql: string, params?: any): Promise<ResultSetHeader> {
+    const [result, fields] = await pool.promise().execute(sql, params);
+
+    return result as ResultSetHeader;
+}
+
+export const db = { query, insert, update };
