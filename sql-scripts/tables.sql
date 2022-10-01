@@ -59,6 +59,13 @@ CREATE TABLE submissions(
     FOREIGN KEY (sound_recording_id) REFERENCES sound_recordings(id) ON DELETE SET NULL
 );
 
+CREATE TABLE publications(
+    submission_id INT,
+    date_approved TIMESTAMP NOT NULL,
+    PRIMARY KEY (submission_id, date_approved),
+    FOREIGN KEY (submission_id) REFERENCES submissions(id) ON DELETE CASCADE
+);
+
 CREATE TABLE auth_providers(
 	id INT AUTO_INCREMENT,
     name VARCHAR(50),
