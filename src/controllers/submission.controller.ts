@@ -62,3 +62,22 @@ export async function createSubmission(req: Request, res: Response) {
         throw new HttpError(400, 'Unable to create submission', e);
     }
 }
+
+export async function publishSubmission(req: Request, res: Response, next: NextFunction) {
+    try {
+        const submissionId = parseInt(req.params.submissionId);
+        if (!submissionId) {
+            res.status(400).send(`Submission id was not provided`);
+        }
+
+        const publishResult = await SubmissionService.publishSubmission(submissionId);
+        
+        const resBody = {
+            result: publishResult
+        }
+
+        res.status(201).send(resBody);
+    } catch (e) {
+        next(e);
+    }
+}

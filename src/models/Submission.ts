@@ -13,3 +13,9 @@ export enum SubmissionStatus {
     Approved,
     Rejected
 }
+
+export const SubmissionStatusMap = {
+    [SubmissionStatus.Pending]: 'Pending',
+    [SubmissionStatus.Approved]: 'Approved',
+    [SubmissionStatus.Rejected]: 'Rejected'
+}
