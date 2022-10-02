@@ -1,8 +1,10 @@
-import { CreateSoundRecordingInput, CreateSoundRecordingResult } from '../types/sound-recordings/sound-recording-request.types';
+import { CreateSoundRecordingInput, CreateSoundRecordingResult, GetSoundRecordingFileResult } from '../types/sound-recordings/sound-recording-request.types';
 import { db } from './db.service';
 import { v4 as uuidv4 } from 'uuid';
 import SoundRecording from '../models/SoundRecording';
 import Location from '../models/Location';
+import { RecordingsContainerClient } from '../utils/StorageEngine.util';
+import HttpError from '../utils/HttpError.util';
 
 export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
     const results = await db.query(
@@ -21,7 +23,8 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
             description: row.description,
             location,
             dateRecorded: row.date_recorded,
-            fileLocation: row.file_location
+            fileLocation: row.file_location,
+            dateApproved: row.date_approved
         }
     });
 
@@ -73,4 +76,41 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
     const result = await db.query(`SELECT * FROM sound_recordings WHERE id = ?`, [soundRecordingId]);
 
     return result[0] as CreateSoundRecordingResult;
+}
+
+export async function getSoundRecordingFileName(id: string): Promise<string> {
+    const results = await db.query(
+        `SELECT file_location
+        FROM sound_recordings
+        WHERE id = ?`
+    , [id]);
+
+    if (results.length === 0) return null;
+    else return results[0].file_location;
+}
+
+export async function getSoundRecordingFile(fileName: string): Promise<GetSoundRecordingFileResult> {
+    const containerClient = RecordingsContainerClient;
+    const blockBlobClient = containerClient.getBlockBlobClient(fileName);
+
+    try {
+        const blobDownload = await blockBlobClient.download();
+        const originalFileName = fileName.split('_')[1];
+        const fileStream = blobDownload.readableStreamBody;
+
+        const data: Buffer = await new Promise(res => {
+            const buf = [];
+
+            fileStream.on('data', d => buf.push(d));
+            fileStream.on('end', () => res(Buffer.concat(buf)));
+        });
+
+        return {
+            fileName: originalFileName,
+            data,
+            size: blobDownload.contentLength
+        }
+    } catch (e) {
+        throw new HttpError(404, `Could not retrieve file with filename ${fileName}`);
+    }
 }

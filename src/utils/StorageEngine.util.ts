@@ -13,11 +13,11 @@ const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZU
 
 const RECORDINGS_CONTAINER = process.env.RECORDINGS_CONTAINER;
 const IMAGES_CONTAINER = process.env.IMAGES_CONTAINER;
-const recordingsContainerClient = blobServiceClient.getContainerClient(RECORDINGS_CONTAINER);
-const imagesContainerClient = blobServiceClient.getContainerClient(IMAGES_CONTAINER);
+export const RecordingsContainerClient = blobServiceClient.getContainerClient(RECORDINGS_CONTAINER);
+export const ImagesContainerClient = blobServiceClient.getContainerClient(IMAGES_CONTAINER);
 
-const RECORDING_FIELDNAME = 'recording';
-const IMAGE_FIELDNAME = 'image';
+export const RECORDING_FIELDNAME = 'recording';
+export const IMAGE_FIELDNAME = 'image';
 
 export default class AzureStorageEngine implements StorageEngine {
 
@@ -63,9 +63,9 @@ export default class AzureStorageEngine implements StorageEngine {
   private getContainerClient(file: Express.Multer.File): ContainerClient {
     switch (file.fieldname) {
       case RECORDING_FIELDNAME:
-        return recordingsContainerClient;
+        return RecordingsContainerClient;
       case IMAGE_FIELDNAME:
-        return imagesContainerClient;
+        return ImagesContainerClient;
       default:
         break;
     }
