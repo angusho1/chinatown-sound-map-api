@@ -8,14 +8,21 @@ import HttpError from '../utils/HttpError.util';
 
 export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
     const results = await db.query(
-        `SELECT sr.id, title, author, description, latitude, longitude, date_recorded, file_location, date_approved
+        `SELECT sr.id, title, author, description, latitude, longitude, date_recorded, file_location, date_approved, image_strs.img_str AS image_file_string
         FROM publications
         JOIN submissions s ON submission_id = s.id
-        JOIN sound_recordings sr ON s.sound_recording_id = sr.id`
+        JOIN sound_recordings sr ON s.sound_recording_id = sr.id
+        LEFT JOIN (
+            SELECT sound_recording_id AS id, GROUP_CONCAT(file_location SEPARATOR '/') AS img_str
+            FROM sound_recording_images GROUP BY sound_recording_id
+        ) AS image_strs ON image_strs.id = sr.id
+        `
     );
 
     const soundRecordings: SoundRecording[] = results.map(row => {
         const location: Location = { lat: parseFloat(row.latitude), lng: parseFloat(row.longitude) };
+        const imageFiles = row.image_file_string ? row.image_file_string.split('/') : [];
+
         return {
             id: row.id,
             title: row.title,
@@ -24,7 +31,8 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
             location,
             dateRecorded: row.date_recorded,
             fileLocation: row.file_location,
-            dateApproved: row.date_approved
+            dateApproved: row.date_approved,
+            imageFiles
         }
     });
 

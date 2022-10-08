@@ -5,9 +5,13 @@ import HttpError from '../utils/HttpError.util';
 
 export async function getSubmissions(): Promise<Submission[]> {
     const rows = await db.query(`
-        SELECT s.id, s.email, s.date_created, s.status, sound_recording_id, sr.title, sr.author, sr.description, sr.latitude, sr.longitude, sr.date_recorded, sr.file_location
+        SELECT s.id, s.email, s.date_created, s.status, sound_recording_id, sr.title, sr.author, sr.description, sr.latitude, sr.longitude, sr.date_recorded, sr.file_location, image_strs.img_str AS image_file_string
         FROM submissions s
         JOIN sound_recordings sr ON s.sound_recording_id = sr.id
+        LEFT JOIN (
+            SELECT sound_recording_id AS id, GROUP_CONCAT(file_location SEPARATOR '/') AS img_str
+            FROM sound_recording_images GROUP BY sound_recording_id
+        ) AS image_strs ON image_strs.id = sr.id
     `);
 
     const submissions: Submission[] = rows.map(row => {
@@ -23,7 +27,8 @@ export async function getSubmissions(): Promise<Submission[]> {
                     lng: parseFloat(row.longitude)
                 },
                 dateRecorded: row.date_recorded,
-                fileLocation: row.file_location
+                fileLocation: row.file_location,
+                imageFiles: row.image_file_string ? row.image_file_string.split('/') : []
             },
             email: row.email,
             dateCreated: row.date_created,
