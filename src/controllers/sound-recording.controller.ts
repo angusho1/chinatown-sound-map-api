@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as SoundRecordingService from '../services/sound-recording.service';
 import HttpError from '../utils/HttpError.util';
+import path from 'path';
 
 export async function getSoundRecordings(req: Request, res: Response, next: NextFunction) {
     const result = await SoundRecordingService.getPublishedSoundRecordings();
@@ -30,4 +31,29 @@ export async function downloadSoundRecording(req: Request, res: Response, next: 
     }
 }
 
-export default { getSoundRecordings, downloadSoundRecording };
+export async function downloadImage(req: Request, res: Response, next: NextFunction) {
+    const fileName = req.params.filename;
+
+    try {
+        const fileResult = await SoundRecordingService.getSoundRecordingFile(fileName, 'image');
+
+        let contentType: string;
+        const ext = path.extname(fileResult.fileName);
+        if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+        else if (ext === '.png') contentType = 'image/png';
+        else contentType = 'image/*'
+
+        res.writeHead(200, {
+            'Content-Type': contentType,
+            'Content-Length': fileResult.size,
+            'Content-Disposition': `attachment; filename=${fileResult.fileName}`
+        });
+
+        res.write(fileResult.data, 'binary');
+        res.end();
+    } catch (e) {
+        next(e);
+    }
+}
+
+export default { getSoundRecordings, downloadSoundRecording, downloadImage };

@@ -3,7 +3,7 @@ import { db } from './db.service';
 import { v4 as uuidv4 } from 'uuid';
 import SoundRecording from '../models/SoundRecording';
 import Location from '../models/Location';
-import { RecordingsContainerClient } from '../utils/StorageEngine.util';
+import { ImagesContainerClient, RecordingsContainerClient } from '../utils/StorageEngine.util';
 import HttpError from '../utils/HttpError.util';
 
 export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
@@ -97,8 +97,8 @@ export async function getSoundRecordingFileName(id: string): Promise<string> {
     else return results[0].file_location;
 }
 
-export async function getSoundRecordingFile(fileName: string): Promise<GetSoundRecordingFileResult> {
-    const containerClient = RecordingsContainerClient;
+export async function getSoundRecordingFile(fileName: string, type: 'recording' | 'image' = 'recording'): Promise<GetSoundRecordingFileResult> {
+    const containerClient = type === 'image' ? ImagesContainerClient : RecordingsContainerClient;
     const blockBlobClient = containerClient.getBlockBlobClient(fileName);
 
     try {
