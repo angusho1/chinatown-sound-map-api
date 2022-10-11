@@ -2,9 +2,129 @@
 	"info": {
 		"_postman_id": "c2756291-fc5e-4e6b-b74c-cb97a901b429",
 		"name": "chinatown-sound-map",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11974707"
 	},
 	"item": [
+		{
+			"name": "sound-recordings",
+			"item": [
+				{
+					"name": "/sound-recordings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/sound-recordings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sound-recordings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/sound-recording/:id/download",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/sound-recording/:id/download",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sound-recording",
+								":id",
+								"download"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/sound-recording/image/:filename/download",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/sound-recording/image/:filename/download",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"sound-recording",
+								"image",
+								":filename",
+								"download"
+							],
+							"variable": [
+								{
+									"key": "filename",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "submissions",
+			"item": [
+				{
+					"name": "/submissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/submissions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"submissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/publish",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/publish/:submissionId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"publish",
+								":submissionId"
+							],
+							"variable": [
+								{
+									"key": "submissionId",
+									"value": "21"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "signup",
 			"protocolProfileBehavior": {
@@ -23,8 +143,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://{{base_url}}/signup",
-					"protocol": "http",
+					"raw": "{{base_url}}/signup",
 					"host": [
 						"{{base_url}}"
 					],
@@ -45,7 +164,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"ngisaz333@gmail.com\",\n    \"password\": \"324SDFdsFsfa3rte\"\n}",
+					"raw": "{\n    \"email\": \"ngisaz3aa33@gmail.com\",\n    \"password\": \"324SDFdsFsfa3rte\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -53,10 +172,9 @@
 					}
 				},
 				"url": {
-					"raw": "http://{{base_url}}/login",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/login",
 					"host": [
-						"{{base_url}}"
+						"{{baseUrl}}"
 					],
 					"path": [
 						"login"
@@ -71,10 +189,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://{{base_url}}/sound-clips",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/sound-clips",
 					"host": [
-						"{{base_url}}"
+						"{{baseUrl}}"
 					],
 					"path": [
 						"sound-clips"
@@ -89,10 +206,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://{{base_url}}/login/google",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/login/google",
 					"host": [
-						"{{base_url}}"
+						"{{baseUrl}}"
 					],
 					"path": [
 						"login",
@@ -108,10 +224,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://{{base_url}}/login/facebook",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/login/facebook",
 					"host": [
-						"{{base_url}}"
+						"{{baseUrl}}"
 					],
 					"path": [
 						"login",
@@ -122,10 +237,30 @@
 			"response": []
 		}
 	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://petstore.swagger.io/v1",
+			"value": "http://localhost:3001",
 			"type": "string"
 		}
 	]
