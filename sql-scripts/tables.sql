@@ -1,3 +1,4 @@
+CREATE DATABASE chinatown_sound_map;
 USE chinatown_sound_map;
 
 -- Legacy sound recordings

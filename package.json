@@ -5,6 +5,7 @@
   "scripts": {
     "start": "ts-node ./bin/www",
     "dev": "nodemon start --ext 'ts,json' ",
+    "server": "NODE_ENV=production ts-node ./bin/www",
     "test": "mocha --require mocha-suppress-logs -r ts-node/register --exit test/**/*.ts"
   },
   "dependencies": {

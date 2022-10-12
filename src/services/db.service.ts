@@ -1,12 +1,17 @@
 import mysql, { ResultSetHeader } from 'mysql2';
 import { FieldPacket, RowDataPacket } from 'mysql2';
+import fs from 'fs';
 
 const pool = mysql.createPool({
     connectionLimit: 10,
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE
+    database: process.env.MYSQL_DATABASE,
+    ssl: process.env.NODE_ENV === 'production' ? {
+        rejectUnauthorized: true,
+        ca: [fs.readFileSync(process.env.MYSQL_SSL_CA_FILE_PATH, "utf8")]
+    } : undefined,
 });
 
 async function query(sql: string, params?: any): Promise<RowDataPacket[]> {

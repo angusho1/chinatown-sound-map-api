@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
+const path = require('path');
+
 /**
  * Configure env
  */
  
 if (process.env.NODE_ENV !== 'production') {
-   require('dotenv').config();
+  require('dotenv').config();
+} else {
+  require('dotenv').config({ path: path.resolve(__dirname, '../prod.env') });
 }
 
 /**
