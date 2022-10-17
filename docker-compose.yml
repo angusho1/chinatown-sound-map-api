@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  chinatown-sound-map-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    volumes:
+      - ./src:/home/node/app/src
+    container_name: chinatown-sound-map-api
+    expose:
+      - '3001'
+    ports:
+      - '3001:3001'
+    command: npm run dev
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
