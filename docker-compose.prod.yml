@@ -1,0 +1,7 @@
+version: '3.7'
+
+services:
+  chinatown-sound-map-api:
+    build:
+      target: production
+    command: npm run server
