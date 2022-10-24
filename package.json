@@ -5,9 +5,9 @@
   "scripts": {
     "start": "ts-node ./bin/www",
     "dev": "nodemon start --ext 'ts,json' ",
-    "server": "NODE_PATH=./build&&NODE_ENV=production node build/bin/www",
+    "server": "node build/bin/www",
     "build": "tsc -p .",
-    "postbuild": "cp package.json ./build/package.json && cp prod.env ./build && mkdir -p ./build/bin && cp ./bin/www ./build/bin/www && cd build && npm install --only=production",
+    "postbuild": "cp package.json ./build/package.json && mkdir -p ./build/bin && cp ./bin/www ./build/bin/www",
     "test": "mocha --require mocha-suppress-logs -r ts-node/register --exit test/**/*.ts"
   },
   "dependencies": {

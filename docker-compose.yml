@@ -4,11 +4,13 @@ services:
   chinatown-sound-map-api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./Dockerfile
       target: base
     volumes:
-      - ./src:/home/node/app/src
+      - ./src:/usr/src/app/src
     container_name: chinatown-sound-map-api
+    env_file:
+      - .env
     expose:
       - '3001'
     ports:

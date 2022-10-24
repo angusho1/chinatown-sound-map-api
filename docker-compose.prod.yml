@@ -4,4 +4,9 @@ services:
   chinatown-sound-map-api:
     build:
       target: production
+    environment:
+      NODE_PATH: ./build
+      NODE_ENV: production
+    env_file:
+      - prod.env
     command: npm run server
