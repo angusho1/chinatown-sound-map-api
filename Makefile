@@ -6,3 +6,6 @@ up-prod:
 
 down: 
 	docker-compose down
+
+build-prod:
+	docker build -t chinatownsoundmap-api:latest --platform linux/amd64 -f Dockerfile.prod .

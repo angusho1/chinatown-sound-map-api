@@ -4,9 +4,14 @@ services:
   chinatown-sound-map-api:
     build:
       target: production
+    image: chinatownsoundmap-api:latest
     environment:
       NODE_PATH: ./build
       NODE_ENV: production
+      DOCKER_CLI_EXPERIMENTAL: enabled
+      DOCKER_BUILDKIT: 1
+      COMPOSE_DOCKER_CLI_BUILD: 1
+    platform: linux/amd64
     env_file:
       - prod.env
     command: npm run server
