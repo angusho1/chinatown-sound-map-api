@@ -84,3 +84,17 @@ CREATE TABLE auth_users(
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (provider_id) REFERENCES auth_providers(id)
 );
+
+CREATE TABLE categories(
+    id VARCHAR(36),
+    name VARCHAR(50) UNIQUE,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE sound_recording_categorizations(
+    category_id VARCHAR(36),
+    sound_recording_id VARCHAR(36),
+    PRIMARY KEY (category_id, sound_recording_id),
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    FOREIGN KEY (sound_recording_id) REFERENCES sound_recordings(id)
+);

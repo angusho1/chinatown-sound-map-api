@@ -30,7 +30,6 @@ export async function getSubmissions(req: Request, res: Response, next: NextFunc
 
 export async function createSubmission(req: Request, res: Response) {
     try {
-        console.log(req.body);
         const location = JSON.parse(req.body.location);
 
         const soundRecording = await SoundRecordingService.createSoundRecording({
@@ -58,7 +57,6 @@ export async function createSubmission(req: Request, res: Response) {
 
         res.status(201).send(resBody);
     } catch (e) {
-        console.log('errr', e);
         throw new HttpError(400, 'Unable to create submission', e);
     }
 }

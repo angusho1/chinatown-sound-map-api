@@ -9,6 +9,7 @@ import userRoutes from './src/routes/user.route';
 import soundClipRoutes from './src/routes/sound-clip.route';
 import soundRecordingRoutes from './src/routes/sound-recording.route';
 import submissionRoutes from './src/routes/submission.route';
+import categoryRoutes from './src/routes/category.route';
 import authRoutes from './src/routes/auth.route';
 import errorHandler from './src/middleware/error.middleware';
 
@@ -26,6 +27,7 @@ app.use(userRoutes);
 app.use(soundClipRoutes);
 app.use(soundRecordingRoutes);
 app.use(submissionRoutes);
+app.use(categoryRoutes);
 app.use(authRoutes);
 app.use(errorHandler);
 
