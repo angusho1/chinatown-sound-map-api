@@ -39,7 +39,9 @@ export async function createSubmission(req: Request, res: Response) {
             fileLocation: req.body.fileLocation,
             dateRecorded: new Date(req.body.date),
             location,
-            imageFiles: req.body.imageFiles
+            imageFiles: req.body.imageFiles,
+            existingCategories: req.body.existingCategories,
+            newCategories: req.body.newCategories
         });
 
         const submissionResult = await SubmissionService.createSubmission({

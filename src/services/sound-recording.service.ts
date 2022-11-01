@@ -5,6 +5,7 @@ import SoundRecording from '../models/SoundRecording';
 import Location from '../models/Location';
 import { ImagesContainerClient, RecordingsContainerClient } from '../utils/StorageEngine.util';
 import HttpError from '../utils/HttpError.util';
+import * as CategoryService from '../services/category.service';
 
 export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
     const results = await db.query(
@@ -16,6 +17,12 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
             SELECT sound_recording_id AS id, GROUP_CONCAT(file_location SEPARATOR '/') AS img_str
             FROM sound_recording_images GROUP BY sound_recording_id
         ) AS image_strs ON image_strs.id = sr.id
+        LEFT JOIN (
+            SELECT sc.sound_recording_id AS id, GROUP_CONCAT(c.name SEPARATOR ',') AS cat_str
+            FROM sound_recording_categorizations sc
+            JOIN categories c ON c.id = sc.category_id
+            GROUP BY sc.sound_recording_id
+        ) AS category_strs ON category_strs.id = sr.id
         `
     );
 
@@ -49,6 +56,13 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
     const latitude = soundRecording.location.lat;
     const longitude = soundRecording.location.lng;
     const imageLocations = soundRecording.imageFiles;
+    const categoryIds = soundRecording.existingCategories;
+    
+    const createCategoriesResult = await CategoryService.createCategories({
+        names: soundRecording.newCategories
+    });
+
+    categoryIds.push(...createCategoriesResult.categoryIds);
 
     const params = [
         soundRecordingId,
@@ -80,6 +94,13 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
     
         await Promise.all(imageInserts);
     }
+
+    const insertParamsStr = categoryIds.reduce((acc, _) => `${acc} (?, ?)`, '');
+
+    await db.insert(
+        `INSERT INTO sound_recording_categorizations (category_id, sound_recording_id) VALUES ${insertParamsStr}`,
+        categoryIds.map(categoryId => [ categoryId, soundRecordingId ])
+    );
 
     const result = await db.query(`SELECT * FROM sound_recordings WHERE id = ?`, [soundRecordingId]);
 
