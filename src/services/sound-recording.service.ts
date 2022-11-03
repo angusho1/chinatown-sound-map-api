@@ -9,7 +9,7 @@ import * as CategoryService from '../services/category.service';
 
 export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
     const results = await db.query(
-        `SELECT sr.id, title, author, description, latitude, longitude, date_recorded, file_location, date_approved, image_strs.img_str AS image_file_string
+        `SELECT sr.id, title, author, description, latitude, longitude, date_recorded, file_location, date_approved, image_strs.img_str AS image_file_string, category_strs.cat_str AS categories_str
         FROM publications
         JOIN submissions s ON submission_id = s.id
         JOIN sound_recordings sr ON s.sound_recording_id = sr.id
@@ -18,7 +18,10 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
             FROM sound_recording_images GROUP BY sound_recording_id
         ) AS image_strs ON image_strs.id = sr.id
         LEFT JOIN (
-            SELECT sc.sound_recording_id AS id, GROUP_CONCAT(c.name SEPARATOR ',') AS cat_str
+            SELECT sc.sound_recording_id AS id, GROUP_CONCAT(
+                    CONCAT(c.id, ';', c.name)
+                    SEPARATOR ','
+                ) AS cat_str
             FROM sound_recording_categorizations sc
             JOIN categories c ON c.id = sc.category_id
             GROUP BY sc.sound_recording_id
@@ -29,6 +32,13 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
     const soundRecordings: SoundRecording[] = results.map(row => {
         const location: Location = { lat: parseFloat(row.latitude), lng: parseFloat(row.longitude) };
         const imageFiles = row.image_file_string ? row.image_file_string.split('/') : [];
+        const categories = row.categories_str ? row.categories_str.split(',').map(categoryStr => {
+            const splitStr = categoryStr.split(';');
+            return {
+                id: splitStr[0],
+                name: splitStr[1],
+            }
+        }) : [];
 
         return {
             id: row.id,
@@ -39,7 +49,8 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
             dateRecorded: row.date_recorded,
             fileLocation: row.file_location,
             dateApproved: row.date_approved,
-            imageFiles
+            imageFiles,
+            categories,
         }
     });
 
