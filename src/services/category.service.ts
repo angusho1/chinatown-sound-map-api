@@ -49,17 +49,21 @@ export async function createCategory(category: CreateCategoryInput): Promise<Cre
     return submissionResult;
 }
 
-export async function createCategories(category: CreateCategoriesInput): Promise<CreateCategoriesResult> {
-    const categories = category.names.map(name => {
+export async function createCategories(input: CreateCategoriesInput): Promise<CreateCategoriesResult> {
+    if (!input.names || input.names.length === 0) {
+        return { categoryIds: [] };
+    }
+
+    const categories = input.names.map(name => {
         return { categoryId: uuidv4(), name };
     });
 
-    const insertParamsStr = categories.reduce((acc, _) => `${acc} (?, ?)`, '');
+    const values = categories.map(category => [ category.categoryId, category.name ]);
 
     try {
-        await db.insert(
-            `INSERT INTO categories (id, name) VALUES ${insertParamsStr}`,
-            categories.map(category => [ category.categoryId, category.name ])
+        await db.insertMultiple(
+            `INSERT INTO categories (id, name) VALUES ?`,
+            values
         );
     } catch (e) {
         if ((e as any).errno === MysqlErrorCodes.ER_DUP_ENTRY) {

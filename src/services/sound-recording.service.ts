@@ -106,12 +106,12 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
         await Promise.all(imageInserts);
     }
 
-    const insertParamsStr = categoryIds.reduce((acc, _) => `${acc} (?, ?)`, '');
-
-    await db.insert(
-        `INSERT INTO sound_recording_categorizations (category_id, sound_recording_id) VALUES ${insertParamsStr}`,
-        categoryIds.map(categoryId => [ categoryId, soundRecordingId ])
-    );
+    if (categoryIds.length > 0) {
+        await db.insertMultiple(
+            `INSERT INTO sound_recording_categorizations (category_id, sound_recording_id) VALUES ?`,
+            categoryIds.map(categoryId => [ categoryId, soundRecordingId ])
+        );
+    }
 
     const result = await db.query(`SELECT * FROM sound_recordings WHERE id = ?`, [soundRecordingId]);
 

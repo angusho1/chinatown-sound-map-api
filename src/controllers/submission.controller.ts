@@ -28,7 +28,7 @@ export async function getSubmissions(req: Request, res: Response, next: NextFunc
     res.status(200).json(submissions);
 }
 
-export async function createSubmission(req: Request, res: Response) {
+export async function createSubmission(req: Request, res: Response, next: NextFunction) {
     try {
         const location = JSON.parse(req.body.location);
 
@@ -40,8 +40,8 @@ export async function createSubmission(req: Request, res: Response) {
             dateRecorded: new Date(req.body.date),
             location,
             imageFiles: req.body.imageFiles,
-            existingCategories: req.body.existingCategories,
-            newCategories: req.body.newCategories
+            existingCategories: JSON.parse(req.body.existingCategories),
+            newCategories: JSON.parse(req.body.newCategories)
         });
 
         const submissionResult = await SubmissionService.createSubmission({
@@ -59,7 +59,7 @@ export async function createSubmission(req: Request, res: Response) {
 
         res.status(201).send(resBody);
     } catch (e) {
-        throw new HttpError(400, 'Unable to create submission', e);
+        next(e);
     }
 }
 
