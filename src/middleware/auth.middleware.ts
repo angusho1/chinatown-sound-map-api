@@ -2,6 +2,7 @@ import { userSchema } from '../models/User';
 import HttpError from '../utils/HttpError.util';
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import passport from 'passport';
 
 export function validateUser(req: Request, res: Response, next: NextFunction) {
     const { email, password, passwordConfirmation } = req.body;
@@ -29,3 +30,5 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
         next(new HttpError(401, 'No valid authentication credentials'));
     }
 }
+
+export const authAdmin = passport.authenticate('oauth-bearer', { session: false });

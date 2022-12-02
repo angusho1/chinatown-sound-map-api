@@ -4,10 +4,13 @@ import { validateUser } from '../middleware/auth.middleware';
 import passport from 'passport';
 import google from 'passport-google-oauth';
 import facebook from 'passport-facebook';
+import azureAd from 'passport-azure-ad';
 import UserService from '../services/auth.service';
+import { authOptions } from '../config/auth/auth.config';
 
 const GoogleStrategy = google.OAuth2Strategy;
 const FacebookStrategy = facebook.Strategy;
+const BearerStrategy = azureAd.BearerStrategy;
 
 const router = express.Router();
 
@@ -25,6 +28,11 @@ passport.use(new FacebookStrategy({
     passReqToCallback: true,
     profileFields: ['id', 'email', 'name']
 }, authController.socialLogin));
+
+passport.use(new BearerStrategy(authOptions, (req, token, done) => {
+    done(null, { }, token);
+  }
+));
 
 router.post('/login', authController.login);
 router.get('/login/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
