@@ -51,7 +51,7 @@ CREATE TABLE users(
 );
 
 CREATE TABLE submissions(
-    id INT AUTO_INCREMENT,
+    id VARCHAR(36),
     sound_recording_id VARCHAR(36),
     email VARCHAR(50) NOT NULL,
     date_created TIMESTAMP NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE submissions(
 );
 
 CREATE TABLE publications(
-    submission_id INT,
+    submission_id VARCHAR(36),
     date_approved TIMESTAMP NOT NULL,
     PRIMARY KEY (submission_id, date_approved),
     FOREIGN KEY (submission_id) REFERENCES submissions(id) ON DELETE CASCADE
@@ -95,6 +95,6 @@ CREATE TABLE sound_recording_categorizations(
     category_id VARCHAR(36),
     sound_recording_id VARCHAR(36),
     PRIMARY KEY (category_id, sound_recording_id),
-    FOREIGN KEY (category_id) REFERENCES categories(id),
-    FOREIGN KEY (sound_recording_id) REFERENCES sound_recordings(id)
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+    FOREIGN KEY (sound_recording_id) REFERENCES sound_recordings(id) ON DELETE CASCADE
 );

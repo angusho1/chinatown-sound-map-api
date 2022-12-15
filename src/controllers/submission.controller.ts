@@ -65,7 +65,7 @@ export async function createSubmission(req: Request, res: Response, next: NextFu
 
 export async function publishSubmission(req: Request, res: Response, next: NextFunction) {
     try {
-        const submissionId = parseInt(req.params.submissionId);
+        const submissionId = req.params.submissionId;
         if (!submissionId) {
             res.status(400).send(`Submission id was not provided`);
         }

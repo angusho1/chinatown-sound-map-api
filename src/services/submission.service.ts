@@ -1,4 +1,5 @@
 import { db } from './db.service';
+import { v4 as uuidv4 } from 'uuid';
 import Submission, { SubmissionStatus, SubmissionStatusMap } from '../models/Submission';
 import { CreateSubmissionInput, CreateSubmissionResult } from '../types/submissions/submisison-request.types';
 import HttpError from '../utils/HttpError.util';
@@ -41,13 +42,15 @@ export async function getSubmissions(): Promise<Submission[]> {
 
 export async function createSubmission(submission: CreateSubmissionInput): Promise<CreateSubmissionResult> {
     const soundRecordingId = submission.soundRecordingId;
+    const submissionId = uuidv4();
     const email = submission.email;
     const dateCreated = new Date();
     const status = submission.status;
 
-    const insertResult = await db.insert(
-        `INSERT INTO submissions (sound_recording_id, email, date_created, status) VALUES (?, ?, ?, ?)`,
+    await db.insert(
+        `INSERT INTO submissions (id, sound_recording_id, email, date_created, status) VALUES (?, ?, ?, ?, ?)`,
         [
+            submissionId,
             soundRecordingId,
             email,
             dateCreated,
@@ -55,14 +58,12 @@ export async function createSubmission(submission: CreateSubmissionInput): Promi
         ]
     );
 
-    const insertId = insertResult.insertId;
-
-    const submissionResult = await db.query(`SELECT * FROM submissions WHERE id = ?`, [insertId]);
+    const submissionResult = await db.query(`SELECT * FROM submissions WHERE id = ?`, [submissionId]);
 
     return submissionResult[0] as CreateSubmissionResult;
 }
 
-export async function publishSubmission(submissionId: number) {
+export async function publishSubmission(submissionId: string) {
     const submission = await db.query(`SELECT * FROM submissions WHERE id = ?`, [submissionId]);
 
     if (!Array.isArray(submission) || submission.length === 0) throw new HttpError(400, `Submission with id ${submissionId} does not exist`);
