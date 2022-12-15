@@ -19,7 +19,7 @@ const config = {
     settings: {
         isB2C: true,
         validateIssuer: true,
-        passReqToCallback: false,
+        passReqToCallback: true,
         loggingLevel: 'info' as 'info',
     }
 }
