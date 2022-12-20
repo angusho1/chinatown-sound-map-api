@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get('/submissions', authAdmin, submissionController.getSubmissions);
 router.post('/submissions', submissionController.uploadFiles, submissionController.createSubmission);
-router.post('/publish/:submissionId', submissionController.publishSubmission);
+router.patch('/submission/:submissionId', authAdmin, submissionController.editSubmission);
+router.post('/publish/:submissionId', authAdmin, submissionController.publishSubmission);
 
 export default router;

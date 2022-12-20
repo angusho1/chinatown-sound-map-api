@@ -64,9 +64,10 @@ export async function createSubmission(submission: CreateSubmissionInput): Promi
 }
 
 export async function publishSubmission(submissionId: string) {
-    const submission = await db.query(`SELECT * FROM submissions WHERE id = ?`, [submissionId]);
-
-    if (!Array.isArray(submission) || submission.length === 0) throw new HttpError(400, `Submission with id ${submissionId} does not exist`);
+    const doesSubmissionExist = await submissionExists(submissionId);
+    if (!doesSubmissionExist) {
+        throw new HttpError(400, `Submission with id ${submissionId} does not exist`);
+    }
 
     const existingPublication = await db.query(`SELECT * FROM publications WHERE submission_id = ?`, [submissionId]);
 
@@ -86,4 +87,40 @@ export async function publishSubmission(submissionId: string) {
     `, [submissionId]);
 
     return `Successfully published sound recording with id '${submissionId}'`;
+}
+
+export async function editSubmissionStatus(submissionId: string, newStatus: SubmissionStatus) {
+    const doesSubmissionExist = await submissionExists(submissionId);
+    if (!doesSubmissionExist) {
+        throw new HttpError(400, `Submission with id ${submissionId} does not exist`);
+    }
+
+    const rows = await db.query(`SELECT id, status FROM submissions WHERE id = ?`, [submissionId])
+
+    const currentStatus = rows[0].status;
+
+    if (newStatus === SubmissionStatus.Pending && currentStatus !== SubmissionStatus.Rejected) {
+        throw new HttpError(400, `Submission with id ${submissionId} cannot be set to status: ${SubmissionStatusMap[newStatus]}`);
+    }
+    
+    if (newStatus === SubmissionStatus.Rejected) {
+        if (currentStatus === SubmissionStatus.Approved) {
+            await db.query(`DELETE FROM publications WHERE submission_id = ?`, [submissionId]);
+        }
+        
+        if (currentStatus === SubmissionStatus.Rejected) {
+            throw new HttpError(400, `Submission with id ${submissionId} cannot be set to status: ${SubmissionStatusMap[newStatus]}`);
+        }
+    }
+
+    await db.update(`
+        UPDATE submissions SET status = ${newStatus} 
+        WHERE id = ?
+    `, [submissionId]);
+}
+
+export async function submissionExists(submissionId: string): Promise<boolean> {
+    const submission = await db.query(`SELECT id FROM submissions WHERE id = ?`, [submissionId]);
+
+    return Array.isArray(submission) && submission.length > 0;
 }

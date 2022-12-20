@@ -5,6 +5,7 @@ import AzureStorageEngine, { MAX_FILE_UPLOAD_SIZE } from '../utils/StorageEngine
 import * as SubmissionService from '../services/submission.service';
 import * as SoundRecordingService from '../services/sound-recording.service';
 import { SubmissionStatus } from '../models/Submission';
+import { getSubmissionStatusFromString } from '../utils/submission.utils';
 
 const storage = new AzureStorageEngine();
 
@@ -77,6 +78,27 @@ export async function publishSubmission(req: Request, res: Response, next: NextF
         }
 
         res.status(201).send(resBody);
+    } catch (e) {
+        next(e);
+    }
+}
+
+export async function editSubmission(req: Request, res: Response, next: NextFunction) {
+    try {
+        const submissionId = req.params.submissionId;
+        const { status } = req.body;
+        if (!submissionId) {
+            res.status(400).send(`Submission id was not provided`);
+        }
+        
+        const submissionStatus = getSubmissionStatusFromString(status);
+        const editResult = await SubmissionService.editSubmissionStatus(submissionId, submissionStatus);
+
+        const resBody = {
+            result: editResult
+        }
+
+        res.status(200).send(resBody);
     } catch (e) {
         next(e);
     }
