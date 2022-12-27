@@ -154,3 +154,26 @@ export async function getSoundRecordingFile(fileName: string, type: 'recording' 
         throw new HttpError(404, `Could not retrieve file with filename ${fileName}`);
     }
 }
+
+export async function isRecordingPublished(soundRecordingId: string): Promise<boolean> {
+    const rows = await db.query(`
+        SELECT sr.id
+        FROM sound_recordings sr
+        JOIN submissions s ON s.sound_recording_id = sr.id
+        JOIN publications p ON p.submission_id = s.id
+        WHERE sr.id = ?
+    `, [soundRecordingId]);
+
+    return rows.length > 0;
+}
+
+export async function getSoundRecordingIdForImage(fileName: string): Promise<string> {
+    const rows = await db.query(`
+        SELECT sri.sound_recording_id AS id
+        FROM sound_recording_images sri
+        WHERE sri.file_location = ?
+    `, [fileName]);
+    
+    if (rows.length === 0) return null;
+    return rows[0].id;
+}
