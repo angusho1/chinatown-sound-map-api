@@ -10,5 +10,5 @@ export default interface SoundRecording {
     dateRecorded?: Date,
     fileLocation: string,
     imageFiles?: string[],
-    categories?: SoundRecordingCategory,
+    categories?: SoundRecordingCategory[],
 }

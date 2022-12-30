@@ -6,6 +6,7 @@ import Location from '../models/Location';
 import { ImagesContainerClient, RecordingsContainerClient } from '../utils/StorageEngine.util';
 import HttpError from '../utils/HttpError.util';
 import * as CategoryService from '../services/category.service';
+import { deserializeCategorizations, SELECT_CATEGORIZATIONS_BY_RECORDING_SERIALIZED } from '../utils/db-transform.utils';
 
 export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
     const results = await db.query(
@@ -18,13 +19,7 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
             FROM sound_recording_images GROUP BY sound_recording_id
         ) AS image_strs ON image_strs.id = sr.id
         LEFT JOIN (
-            SELECT sc.sound_recording_id AS id, GROUP_CONCAT(
-                    CONCAT(c.id, ';', c.name)
-                    SEPARATOR ','
-                ) AS cat_str
-            FROM sound_recording_categorizations sc
-            JOIN categories c ON c.id = sc.category_id
-            GROUP BY sc.sound_recording_id
+            ${SELECT_CATEGORIZATIONS_BY_RECORDING_SERIALIZED}
         ) AS category_strs ON category_strs.id = sr.id
         `
     );
@@ -32,13 +27,7 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
     const soundRecordings: SoundRecording[] = results.map(row => {
         const location: Location = { lat: parseFloat(row.latitude), lng: parseFloat(row.longitude) };
         const imageFiles = row.image_file_string ? row.image_file_string.split('/') : [];
-        const categories = row.categories_str ? row.categories_str.split(',').map(categoryStr => {
-            const splitStr = categoryStr.split(';');
-            return {
-                id: splitStr[0],
-                name: splitStr[1],
-            }
-        }) : [];
+        const categories = deserializeCategorizations(row.categories_str);
 
         return {
             id: row.id,

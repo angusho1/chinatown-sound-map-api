@@ -3,19 +3,25 @@ import { v4 as uuidv4 } from 'uuid';
 import Submission, { SubmissionStatus, SubmissionStatusMap } from '../models/Submission';
 import { CreateSubmissionInput, CreateSubmissionResult } from '../types/submissions/submisison-request.types';
 import HttpError from '../utils/HttpError.util';
+import { deserializeCategorizations, SELECT_CATEGORIZATIONS_BY_RECORDING_SERIALIZED } from '../utils/db-transform.utils';
 
 export async function getSubmissions(): Promise<Submission[]> {
     const rows = await db.query(`
-        SELECT s.id, s.email, s.date_created, s.status, sound_recording_id, sr.title, sr.author, sr.description, sr.latitude, sr.longitude, sr.date_recorded, sr.file_location, image_strs.img_str AS image_file_string
+        SELECT s.id, s.email, s.date_created, s.status, sound_recording_id, sr.title, sr.author, sr.description, sr.latitude, sr.longitude, sr.date_recorded, sr.file_location, image_strs.img_str AS image_file_string, category_strs.cat_str AS categories_str
         FROM submissions s
         JOIN sound_recordings sr ON s.sound_recording_id = sr.id
         LEFT JOIN (
             SELECT sound_recording_id AS id, GROUP_CONCAT(file_location SEPARATOR '/') AS img_str
             FROM sound_recording_images GROUP BY sound_recording_id
         ) AS image_strs ON image_strs.id = sr.id
+        LEFT JOIN (
+            ${SELECT_CATEGORIZATIONS_BY_RECORDING_SERIALIZED}
+        ) AS category_strs ON category_strs.id = sr.id
     `);
 
     const submissions: Submission[] = rows.map(row => {
+        const categories = deserializeCategorizations(row.categories_str);
+
         return {
             id: row.id,
             soundRecording: {
@@ -29,7 +35,8 @@ export async function getSubmissions(): Promise<Submission[]> {
                 },
                 dateRecorded: row.date_recorded,
                 fileLocation: row.file_location,
-                imageFiles: row.image_file_string ? row.image_file_string.split('/') : []
+                imageFiles: row.image_file_string ? row.image_file_string.split('/') : [],
+                categories
             },
             email: row.email,
             dateCreated: row.date_created,
