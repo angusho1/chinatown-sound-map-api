@@ -31,26 +31,36 @@ export async function getSubmissions(req: Request, res: Response, next: NextFunc
 
 export async function createSubmission(req: Request, res: Response, next: NextFunction) {
     try {
-        const location = JSON.parse(req.body.location);
+        const {
+            title,
+            email,
+            description,
+            fileLocation,
+            date: dateRecorded,
+            location,
+            imageFiles,
+            existingCategories,
+            newCategories,
+        } = req.body;
 
         const soundRecording = await SoundRecordingService.createSoundRecording({
-            title: req.body.title,
-            author: req.body.author || 'Test', // TODO: validate input
-            description: req.body.description,
-            fileLocation: req.body.fileLocation,
-            dateRecorded: new Date(req.body.date),
+            title,
+            author: 'Placeholder',
+            description,
+            fileLocation,
+            dateRecorded,
             location,
-            imageFiles: req.body.imageFiles,
-            existingCategories: JSON.parse(req.body.existingCategories),
-            newCategories: JSON.parse(req.body.newCategories)
+            imageFiles,
+            existingCategories,
+            newCategories,
         });
 
         const submissionResult = await SubmissionService.createSubmission({
             soundRecordingId: soundRecording.id,
-            email: req.body.email,
+            email,
             status: SubmissionStatus.Pending
         });
-        
+
         const resBody = {
             result: {
                 ...soundRecording,

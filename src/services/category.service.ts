@@ -79,3 +79,15 @@ export async function createCategories(input: CreateCategoriesInput): Promise<Cr
 
     return result;
 }
+
+export async function categoryExists(filter: { id?: string, name?: string }): Promise<boolean> {
+    let rows;
+    if (filter.id) {
+        rows = await db.query(`SELECT id FROM categories WHERE id = ?`, [filter.id]);
+    } else if (filter.name) {
+        rows = await db.query(`SELECT id FROM categories WHERE name = ?`, [filter.name]);
+    } else {
+        throw new Error('Category identifier was not provided');
+    }
+    return rows.length > 0;
+}
