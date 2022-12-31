@@ -2,10 +2,10 @@ import { Request } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { StorageEngine } from 'multer';
 import { ParsedQs } from 'qs';
-import fs from 'fs';
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { v4 as uuidv4 } from 'uuid';
 import HttpError from './HttpError.util';
+import { FileType } from '../types/sound-recordings/file-type.enum';
 
 export const MAX_FILE_UPLOAD_SIZE = 5 * (10 ** 6);
 
@@ -16,24 +16,35 @@ const IMAGES_CONTAINER = process.env.IMAGES_CONTAINER;
 export const RecordingsContainerClient = blobServiceClient.getContainerClient(RECORDINGS_CONTAINER);
 export const ImagesContainerClient = blobServiceClient.getContainerClient(IMAGES_CONTAINER);
 
-export const RECORDING_FIELDNAME = 'recording';
-export const IMAGE_FIELDNAME = 'image';
+export const getContainerClient = (fileType: FileType): ContainerClient => {
+  switch (fileType) {
+    case FileType.RECORDING:
+      return RecordingsContainerClient;
+    case FileType.IMAGE:
+      return ImagesContainerClient;
+    default:
+      break;
+  }
+};
+
+export const removeFile = async (containerClient: ContainerClient, blobName: string) => {
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+  return await blockBlobClient.deleteIfExists({ deleteSnapshots: 'include' });
+};
 
 export default class AzureStorageEngine implements StorageEngine {
 
   _handleFile(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, file: Express.Multer.File, cb: (error?: any, info?: Partial<Express.Multer.File>) => void): void {
-    console.log(file);
-
-    const containerClient = this.getContainerClient(file);
+    const containerClient = getContainerClient(file.fieldname as FileType);
     const blobName = `${uuidv4()}_${file.originalname}`;
     file.path = blobName;
 
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
     blockBlobClient.uploadStream(file.stream)
       .then(uploadResult => {
-        if (file.fieldname === RECORDING_FIELDNAME) {
+        if (file.fieldname === FileType.RECORDING) {
           req.body.fileLocation = blobName;
-        } else if (file.fieldname === IMAGE_FIELDNAME) {
+        } else if (file.fieldname === FileType.IMAGE) {
           if (req.body.imageFiles && Array.isArray(req.body.imageFiles)) {
             req.body.imageFiles.push(blobName);
           } else {
@@ -49,25 +60,16 @@ export default class AzureStorageEngine implements StorageEngine {
   }
 
   _removeFile(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, file: Express.Multer.File, cb: (error: Error) => void): void {
-    const containerClient = this.getContainerClient(file);
+    const containerClient = getContainerClient(file.fieldname as FileType);
     const blobName = file.path;
 
     if (!blobName) cb(new HttpError(400, 'File path was not found'));
-    
-    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-    blockBlobClient.deleteIfExists({ deleteSnapshots: 'include' })
-      .then(res => cb(null))
-      .catch(e => cb(e));
-  }
 
-  private getContainerClient(file: Express.Multer.File): ContainerClient {
-    switch (file.fieldname) {
-      case RECORDING_FIELDNAME:
-        return RecordingsContainerClient;
-      case IMAGE_FIELDNAME:
-        return ImagesContainerClient;
-      default:
-        break;
-    }
+    removeFile(containerClient, blobName)
+      .then(res => {
+        cb(null);
+        console.log(`Removed file ${blobName}`);
+      })
+      .catch(e => cb(e));
   }
 }

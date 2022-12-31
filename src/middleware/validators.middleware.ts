@@ -72,7 +72,9 @@ export const createSubmissionValidator = [
 export const validateResult = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        res.status(400).json({ errors: errors.array() });
+        next(new Error('Validation Error'));
+    } else {
+        next();
     }
-    next();
 };

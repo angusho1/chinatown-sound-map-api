@@ -12,6 +12,7 @@ import submissionRoutes from './src/routes/submission.route';
 import categoryRoutes from './src/routes/category.route';
 import authRoutes from './src/routes/auth.route';
 import errorHandler from './src/middleware/error.middleware';
+import { handleSubmissionError } from './src/middleware/submission.middleware';
 
 const app = express();
 
@@ -29,6 +30,10 @@ app.use(soundRecordingRoutes);
 app.use(submissionRoutes);
 app.use(categoryRoutes);
 app.use(authRoutes);
+app.use((err, req, res, next) => {
+    if (req.originalUrl === '/submissions' && req.method === 'POST') handleSubmissionError(err, req, res, next);
+    else next(err);
+});
 app.use(errorHandler);
 
 export default app;
