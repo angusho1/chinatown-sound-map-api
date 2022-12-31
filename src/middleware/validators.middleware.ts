@@ -3,7 +3,8 @@ import { body, CustomSanitizer, CustomValidator, validationResult } from "expres
 import * as CategoryService from '../services/category.service';
 
 export const MAX_TITLE_LEN = 100;
-export const MAX_DESCRIPTION_LEN = (2 ** 16)-1;
+export const MAX_AUTHOR_NAME_LEN = 100;
+export const MAX_DESCRIPTION_LEN = 1000;
 export const MAX_CATEGORY_LABEL_LENGTH = 40;
 
 const parseJSONString: CustomSanitizer = (value: string) => JSON.parse(value);
@@ -33,6 +34,9 @@ export const createSubmissionValidator = [
     body('email')
         .optional()
         .isEmail(),
+    body('author')
+        .optional()
+        .isLength({ min: 1, max: MAX_AUTHOR_NAME_LEN }),
     body('fileLocation')
         .isString(),
     body('description')

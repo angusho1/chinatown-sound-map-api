@@ -34,6 +34,7 @@ export async function createSubmission(req: Request, res: Response, next: NextFu
         const {
             title,
             email,
+            author,
             description,
             fileLocation,
             date: dateRecorded,
@@ -45,7 +46,7 @@ export async function createSubmission(req: Request, res: Response, next: NextFu
 
         const soundRecording = await SoundRecordingService.createSoundRecording({
             title,
-            author: 'Placeholder',
+            author,
             description,
             fileLocation,
             dateRecorded,
