@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { body, CustomSanitizer, CustomValidator, validationResult } from "express-validator";
+import { body, CustomSanitizer, CustomValidator, query, validationResult } from "express-validator";
 import * as CategoryService from '../services/category.service';
+import { SubmissionSortField } from "../types/submissions/submisison-request.types";
 
 export const MAX_TITLE_LEN = 100;
 export const MAX_AUTHOR_NAME_LEN = 100;
@@ -26,6 +27,27 @@ const validateNewCategories: CustomValidator = async (value: string[]) => {
     }));
     return true;
 };
+
+export const getSubmissionsValidator = [
+    query('sort')
+        .optional()
+        .custom((val: SubmissionSortField | SubmissionSortField[]) => {
+            const fields = Array.isArray(val) ? val as SubmissionSortField[] : [val];
+            fields.forEach(field => {
+                if (field !== 'dateCreated' && field !== 'title' && field !== 'author') throw new Error('Invalid sort parameter');
+            });
+            return true;
+        }),
+    query('desc')
+        .optional()
+        .custom(val => {
+            const vals = Array.isArray(val) ? val : [val];
+            vals.forEach(v => {
+                if (v !== '' && v !== '1' && v !== 'true' && v !== 'false') throw new Error('Invalid sort parameter');
+            });
+            return true;
+        }),
+]
 
 export const createSubmissionValidator = [
     body('title')

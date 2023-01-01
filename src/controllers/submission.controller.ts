@@ -6,6 +6,7 @@ import * as SubmissionService from '../services/submission.service';
 import * as SoundRecordingService from '../services/sound-recording.service';
 import { SubmissionStatus } from '../models/Submission';
 import { getSubmissionStatusFromString } from '../utils/submission.utils';
+import { SortOption, SubmissionSortField } from '../types/submissions/submisison-request.types';
 
 const storage = new AzureStorageEngine();
 
@@ -25,7 +26,10 @@ export const uploadFiles = upload.fields([
 ]);
 
 export async function getSubmissions(req: Request, res: Response, next: NextFunction) {
-    const submissions = await SubmissionService.getSubmissions();
+    const defaultSort = [{ field: 'dateCreated', directionDesc: true }] as SortOption[];
+    const sort = parseSubmissionSort(req) || defaultSort;
+
+    const submissions = await SubmissionService.getSubmissions({ sort });
     res.status(200).json(submissions);
 }
 
@@ -113,4 +117,23 @@ export async function editSubmission(req: Request, res: Response, next: NextFunc
     } catch (e) {
         next(e);
     }
+}
+
+function parseSubmissionSort(req: Request): SortOption[] | null {
+    const sort = req.query.sort;
+    if (!sort) return null;
+    const sortFields = Array.isArray(sort) ? sort : [sort];
+    
+    const desc = req.query.desc;
+    const descArr = desc !== '' && !desc ? [] : (Array.isArray(desc) ? desc : [desc]);
+
+    const options: SortOption[] = [];
+    for (let i = 0; i < sortFields.length; i++) {
+        options.push({
+            field: sortFields[i] as SubmissionSortField,
+            directionDesc: i < descArr.length ? descArr[i] !== 'false' : undefined
+        });
+    }
+
+    return options;
 }

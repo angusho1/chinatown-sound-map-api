@@ -11,3 +11,14 @@ export type CreateSubmissionResult = {
     email: string;
     status: SubmissionStatus
 }
+
+export type SubmissionSortField = 'dateCreated' | 'title' | 'author';
+
+export type SortOption = {
+    field: SubmissionSortField;
+    directionDesc?: boolean;
+}
+
+export type GetSubmissionsOptions = {
+    sort?: SortOption[];
+}

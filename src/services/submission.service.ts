@@ -1,11 +1,22 @@
 import { db } from './db.service';
 import { v4 as uuidv4 } from 'uuid';
 import Submission, { SubmissionStatus, SubmissionStatusMap } from '../models/Submission';
-import { CreateSubmissionInput, CreateSubmissionResult } from '../types/submissions/submisison-request.types';
+import { CreateSubmissionInput, CreateSubmissionResult, GetSubmissionsOptions, SortOption } from '../types/submissions/submisison-request.types';
 import HttpError from '../utils/HttpError.util';
 import { deserializeCategorizations, SELECT_CATEGORIZATIONS_BY_RECORDING_SERIALIZED } from '../utils/db-transform.utils';
 
-export async function getSubmissions(): Promise<Submission[]> {
+const SUBMISSIONS_COLUMN_NAME_MAP = {
+    dateCreated: 's.date_created',
+    title: 'sr.title',
+    author: 'sr.author',
+}
+
+export async function getSubmissions(options?: GetSubmissionsOptions): Promise<Submission[]> {
+    let orderSql = options && options.sort ? 'ORDER BY ' : '';
+    if (orderSql) {
+        orderSql += options.sort.map(option => `${SUBMISSIONS_COLUMN_NAME_MAP[option.field]}${option.directionDesc ? ' DESC' : ''}`).join(', ');
+    }
+
     const rows = await db.query(`
         SELECT s.id, s.email, s.date_created, s.status, sound_recording_id, sr.title, sr.author, sr.description, sr.latitude, sr.longitude, sr.date_recorded, sr.file_location, image_strs.img_str AS image_file_string, category_strs.cat_str AS categories_str
         FROM submissions s
@@ -17,6 +28,7 @@ export async function getSubmissions(): Promise<Submission[]> {
         LEFT JOIN (
             ${SELECT_CATEGORIZATIONS_BY_RECORDING_SERIALIZED}
         ) AS category_strs ON category_strs.id = sr.id
+        ${orderSql}
     `);
 
     const submissions: Submission[] = rows.map(row => {
