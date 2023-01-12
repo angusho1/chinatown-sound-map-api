@@ -14,7 +14,7 @@ export async function getSoundClips(): Promise<SoundClip[]> {
             location,
             date: res.date,
             content: res.content,
-            categories: [],
+            tags: [],
             meta: {
                 plays: 0,
                 likes: 0

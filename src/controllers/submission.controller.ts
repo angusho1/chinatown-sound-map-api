@@ -44,8 +44,8 @@ export async function createSubmission(req: Request, res: Response, next: NextFu
             date: dateRecorded,
             location,
             imageFiles,
-            existingCategories,
-            newCategories,
+            existingTags,
+            newTags,
         } = req.body;
 
         const soundRecording = await SoundRecordingService.createSoundRecording({
@@ -56,8 +56,8 @@ export async function createSubmission(req: Request, res: Response, next: NextFu
             dateRecorded,
             location,
             imageFiles,
-            existingCategories,
-            newCategories,
+            existingTags,
+            newTags,
         });
 
         const submissionResult = await SubmissionService.createSubmission({

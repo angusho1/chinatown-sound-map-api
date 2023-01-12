@@ -1,22 +1,22 @@
-import SoundRecordingCategory from "../models/SoundRecordingCategory";
+import SoundRecordingTag from "../models/SoundRecordingTag";
 
-export const SQL_CATEGORIZATION_COLUMN_DELIMITER = ';';
-export const SQL_CATEGORIZATION_ROW_DELIMITER = ',';
+export const SQL_TAG_COLUMN_DELIMITER = ';';
+export const SQL_TAG_ROW_DELIMITER = ',';
 
-export const SELECT_CATEGORIZATIONS_BY_RECORDING_SERIALIZED = `
-    SELECT sc.sound_recording_id AS id, GROUP_CONCAT(
-        CONCAT(c.id, '${SQL_CATEGORIZATION_COLUMN_DELIMITER}', c.name)
-        SEPARATOR '${SQL_CATEGORIZATION_ROW_DELIMITER}'
-    ) AS cat_str
-    FROM sound_recording_categorizations sc
-    JOIN categories c ON c.id = sc.category_id
-    GROUP BY sc.sound_recording_id
+export const SELECT_TAGS_BY_RECORDING_SERIALIZED = `
+    SELECT st.sound_recording_id AS id, GROUP_CONCAT(
+        CONCAT(t.id, '${SQL_TAG_COLUMN_DELIMITER}', t.name)
+        SEPARATOR '${SQL_TAG_ROW_DELIMITER}'
+    ) AS tag_str
+    FROM sound_recording_taggings st
+    JOIN tags t ON t.id = st.tag_id
+    GROUP BY st.sound_recording_id
 `;
 
-export const deserializeCategorizations = (categoryStr: string): SoundRecordingCategory[] => {
-    if (!categoryStr) return [];
-    return categoryStr.split(SQL_CATEGORIZATION_ROW_DELIMITER).map(categoryStr => {
-        const splitStr = categoryStr.split(SQL_CATEGORIZATION_COLUMN_DELIMITER);
+export const deserializeTags = (tagStr: string): SoundRecordingTag[] => {
+    if (!tagStr) return [];
+    return tagStr.split(SQL_TAG_ROW_DELIMITER).map(tagStr => {
+        const splitStr = tagStr.split(SQL_TAG_COLUMN_DELIMITER);
         return {
             id: splitStr[0],
             name: splitStr[1],

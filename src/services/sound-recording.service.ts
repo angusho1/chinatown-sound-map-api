@@ -5,12 +5,12 @@ import SoundRecording from '../models/SoundRecording';
 import Location from '../models/Location';
 import { ImagesContainerClient, RecordingsContainerClient } from '../utils/StorageEngine.util';
 import HttpError from '../utils/HttpError.util';
-import * as CategoryService from '../services/category.service';
-import { deserializeCategorizations, SELECT_CATEGORIZATIONS_BY_RECORDING_SERIALIZED } from '../utils/db-transform.utils';
+import * as TagService from '../services/tag.service';
+import { deserializeTags, SELECT_TAGS_BY_RECORDING_SERIALIZED } from '../utils/db-transform.utils';
 
 export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
     const results = await db.query(
-        `SELECT sr.id, title, author, description, latitude, longitude, date_recorded, file_location, date_approved, image_strs.img_str AS image_file_string, category_strs.cat_str AS categories_str
+        `SELECT sr.id, title, author, description, latitude, longitude, date_recorded, file_location, date_approved, image_strs.img_str AS image_file_string, tag_strs.tag_str AS tags_str
         FROM publications
         JOIN submissions s ON submission_id = s.id
         JOIN sound_recordings sr ON s.sound_recording_id = sr.id
@@ -19,15 +19,15 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
             FROM sound_recording_images GROUP BY sound_recording_id
         ) AS image_strs ON image_strs.id = sr.id
         LEFT JOIN (
-            ${SELECT_CATEGORIZATIONS_BY_RECORDING_SERIALIZED}
-        ) AS category_strs ON category_strs.id = sr.id
+            ${SELECT_TAGS_BY_RECORDING_SERIALIZED}
+        ) AS tag_strs ON tag_strs.id = sr.id
         `
     );
 
     const soundRecordings: SoundRecording[] = results.map(row => {
         const location: Location = { lat: parseFloat(row.latitude), lng: parseFloat(row.longitude) };
         const imageFiles = row.image_file_string ? row.image_file_string.split('/') : [];
-        const categories = deserializeCategorizations(row.categories_str);
+        const tags = deserializeTags(row.tags_str);
 
         return {
             id: row.id,
@@ -39,7 +39,7 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
             fileLocation: row.file_location,
             dateApproved: row.date_approved,
             imageFiles,
-            categories,
+            tags,
         }
     });
 
@@ -56,13 +56,13 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
     const latitude = soundRecording.location.lat;
     const longitude = soundRecording.location.lng;
     const imageLocations = soundRecording.imageFiles;
-    const categoryIds = soundRecording.existingCategories;
+    const tagIds = soundRecording.existingTags;
     
-    const createCategoriesResult = await CategoryService.createCategories({
-        names: soundRecording.newCategories
+    const createTagsResult = await TagService.createTags({
+        names: soundRecording.newTags
     });
 
-    categoryIds.push(...createCategoriesResult.categoryIds);
+    tagIds.push(...createTagsResult.tagIds);
 
     const params = [
         soundRecordingId,
@@ -95,10 +95,10 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
         await Promise.all(imageInserts);
     }
 
-    if (categoryIds.length > 0) {
+    if (tagIds.length > 0) {
         await db.insertMultiple(
-            `INSERT INTO sound_recording_categorizations (category_id, sound_recording_id) VALUES ?`,
-            categoryIds.map(categoryId => [ categoryId, soundRecordingId ])
+            `INSERT INTO sound_recording_taggings (tag_id, sound_recording_id) VALUES ?`,
+            tagIds.map(tagId => [ tagId, soundRecordingId ])
         );
     }
 

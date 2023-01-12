@@ -1,28 +1,28 @@
 import { NextFunction, Request, Response } from "express";
 import { body, CustomSanitizer, CustomValidator, query, validationResult } from "express-validator";
-import * as CategoryService from '../services/category.service';
+import * as TagService from '../services/tag.service';
 import { SubmissionSortField } from "../types/submissions/submisison-request.types";
 
 export const MAX_TITLE_LEN = 100;
 export const MAX_AUTHOR_NAME_LEN = 100;
 export const MAX_DESCRIPTION_LEN = 1000;
-export const MAX_CATEGORY_LABEL_LENGTH = 40;
+export const MAX_TAG_LABEL_LENGTH = 40;
 
 const parseJSONString: CustomSanitizer = (value: string) => JSON.parse(value);
 
-const validateExistingCategories: CustomValidator = async (value: string[]) => {
-    await Promise.all(value.map(async (categoryId: string) => {
-        const exists = await CategoryService.categoryExists({ id: categoryId });
-        if (!exists) return Promise.reject(`Category with id ${categoryId} doesn't exist`);
+const validateExistingTags: CustomValidator = async (value: string[]) => {
+    await Promise.all(value.map(async (tagId: string) => {
+        const exists = await TagService.tagExists({ id: tagId });
+        if (!exists) return Promise.reject(`Tag with id ${tagId} doesn't exist`);
         return Promise.resolve();
     }));
     return true;
 };
 
-const validateNewCategories: CustomValidator = async (value: string[]) => {
-    await Promise.all(value.map(async (categoryName: string) => {
-        const exists = await CategoryService.categoryExists({ name: categoryName });
-        if (exists) return Promise.reject(`Category '${categoryName}' already exists`);
+const validateNewTags: CustomValidator = async (value: string[]) => {
+    await Promise.all(value.map(async (tagName: string) => {
+        const exists = await TagService.tagExists({ name: tagName });
+        if (exists) return Promise.reject(`Tag '${tagName}' already exists`);
         return Promise.resolve();
     }));
     return true;
@@ -76,20 +76,20 @@ export const createSubmissionValidator = [
     body('location.lng')
         .exists()
         .isFloat({ min: -180, max: 180 }),
-    body('existingCategories')
+    body('existingTags')
         .optional()
         .isString()
         .customSanitizer(parseJSONString)
         .isArray()
         .bail()
-        .custom(validateExistingCategories),
-    body('newCategories')
+        .custom(validateExistingTags),
+    body('newTags')
         .optional()
         .isString()
         .customSanitizer(parseJSONString)
         .isArray()
         .bail()
-        .custom(validateNewCategories),
+        .custom(validateNewTags),
     body('imageFiles')
         .optional()
         .isArray()

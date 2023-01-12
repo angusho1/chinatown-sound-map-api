@@ -85,16 +85,16 @@ CREATE TABLE auth_users(
     FOREIGN KEY (provider_id) REFERENCES auth_providers(id)
 );
 
-CREATE TABLE categories(
+CREATE TABLE tags(
     id VARCHAR(36),
     name VARCHAR(50) UNIQUE,
     PRIMARY KEY (id)
 );
 
-CREATE TABLE sound_recording_categorizations(
-    category_id VARCHAR(36),
+CREATE TABLE sound_recording_taggings(
+    tag_id VARCHAR(36),
     sound_recording_id VARCHAR(36),
-    PRIMARY KEY (category_id, sound_recording_id),
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+    PRIMARY KEY (tag_id, sound_recording_id),
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
     FOREIGN KEY (sound_recording_id) REFERENCES sound_recordings(id) ON DELETE CASCADE
 );

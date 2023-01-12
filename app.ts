@@ -9,7 +9,7 @@ import userRoutes from './src/routes/user.route';
 import soundClipRoutes from './src/routes/sound-clip.route';
 import soundRecordingRoutes from './src/routes/sound-recording.route';
 import submissionRoutes from './src/routes/submission.route';
-import categoryRoutes from './src/routes/category.route';
+import tagRoutes from './src/routes/tag.route';
 import authRoutes from './src/routes/auth.route';
 import errorHandler from './src/middleware/error.middleware';
 import { handleSubmissionError } from './src/middleware/submission.middleware';
@@ -28,7 +28,7 @@ app.use(userRoutes);
 app.use(soundClipRoutes);
 app.use(soundRecordingRoutes);
 app.use(submissionRoutes);
-app.use(categoryRoutes);
+app.use(tagRoutes);
 app.use(authRoutes);
 app.use((err, req, res, next) => {
     if (req.originalUrl === '/submissions' && req.method === 'POST') handleSubmissionError(err, req, res, next);

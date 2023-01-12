@@ -1,5 +1,5 @@
 import Location from './Location';
-import SoundRecordingCategory from './SoundRecordingCategory';
+import SoundRecordingTag from './SoundRecordingTag';
 
 export default interface SoundRecording {
     id: string,
@@ -10,5 +10,5 @@ export default interface SoundRecording {
     dateRecorded?: Date,
     fileLocation: string,
     imageFiles?: string[],
-    categories?: SoundRecordingCategory[],
+    tags?: SoundRecordingTag[],
 }
