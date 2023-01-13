@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { body, CustomSanitizer, CustomValidator, query, validationResult } from "express-validator";
+import { body, check, CustomSanitizer, CustomValidator, query, validationResult } from "express-validator";
 import * as TagService from '../services/tag.service';
 import { SubmissionSortField } from "../types/submissions/submisison-request.types";
 
@@ -7,6 +7,7 @@ export const MAX_TITLE_LEN = 100;
 export const MAX_AUTHOR_NAME_LEN = 100;
 export const MAX_DESCRIPTION_LEN = 1000;
 export const MAX_TAG_LABEL_LENGTH = 40;
+export const MAX_NUMBER_TAGS_PER_RECORDING = 5;
 
 const parseJSONString: CustomSanitizer = (value: string) => JSON.parse(value);
 
@@ -25,6 +26,15 @@ const validateNewTags: CustomValidator = async (value: string[]) => {
         if (exists) return Promise.reject(`Tag '${tagName}' already exists`);
         return Promise.resolve();
     }));
+    return true;
+};
+
+const validateTagCount: CustomValidator = (value, { req }) => {
+    console.log(req.body.existingTags);
+    console.log(req.body.newTags);
+    const existingTagsCount = req.body.existingTags ? req.body.existingTags.length : 0;
+    const newTagsCount = req.body.newTags ? req.body.newTags.length : 0;
+    if (existingTagsCount + newTagsCount > MAX_NUMBER_TAGS_PER_RECORDING) throw new Error(`Number of tags exceeds the allowed amount (${MAX_NUMBER_TAGS_PER_RECORDING})`);
     return true;
 };
 
@@ -81,14 +91,19 @@ export const createSubmissionValidator = [
         .isString()
         .customSanitizer(parseJSONString)
         .isArray()
-        .bail()
-        .custom(validateExistingTags),
+        .bail(),
     body('newTags')
         .optional()
         .isString()
         .customSanitizer(parseJSONString)
         .isArray()
-        .bail()
+        .bail(),
+    check('existingTags')
+        .custom(validateTagCount)
+        .bail(),
+    body('existingTags')
+        .custom(validateExistingTags),
+    body('newTags')
         .custom(validateNewTags),
     body('imageFiles')
         .optional()
