@@ -7,6 +7,7 @@ import * as SoundRecordingService from '../services/sound-recording.service';
 import { SubmissionStatus } from '../models/Submission';
 import { getSubmissionStatusFromString } from '../utils/submission.utils';
 import { SortOption, SubmissionSortField } from '../types/submissions/submisison-request.types';
+import fetch from 'node-fetch';
 
 const storage = new AzureStorageEngine();
 
@@ -136,4 +137,19 @@ function parseSubmissionSort(req: Request): SortOption[] | null {
     }
 
     return options;
+}
+
+export async function verifyToken(req: Request, res: Response) {
+    const token = req.body.token;
+    console.log('token', token);
+    try {
+        const result = await fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`);
+        res.status(200).json({
+            message: 'Success',
+            data: await result.json(),
+        });
+    } catch (e) {
+        console.log(e);
+        res.status(400).send('Failed to verify token');
+    }
 }
