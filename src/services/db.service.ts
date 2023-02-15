@@ -8,10 +8,10 @@ const pool = mysql.createPool({
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
-    ssl: process.env.NODE_ENV === 'production' ? {
-        rejectUnauthorized: true,
-        ca: [fs.readFileSync(process.env.MYSQL_SSL_CA_FILE_PATH, "utf8")]
-    } : undefined,
+    // ssl: process.env.NODE_ENV === 'production' ? {
+    //     rejectUnauthorized: true,
+    //     ca: [fs.readFileSync(process.env.MYSQL_SSL_CA_FILE_PATH, "utf8")]
+    // } : undefined,
 });
 
 async function query(sql: string, params?: any): Promise<RowDataPacket[]> {
