@@ -5,11 +5,11 @@ const path = require('path');
 /**
  * Configure env
  */
- 
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+
+if (process.env.ENV_FILE_PATH) {
+  require('dotenv').config({ path: process.env.ENV_FILE_PATH });
 } else {
-  require('dotenv').config({ path: path.resolve(__dirname, '../prod.env') });
+  require('dotenv').config();
 }
 
 /**
