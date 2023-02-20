@@ -18,7 +18,7 @@ export async function getSubmissions(options?: GetSubmissionsOptions): Promise<S
     }
 
     const rows = await db.query(`
-        SELECT s.id, s.email, s.date_created, s.status, sound_recording_id, sr.title, sr.author, sr.description, sr.latitude, sr.longitude, sr.date_recorded, sr.file_location, image_strs.img_str AS image_file_string, tag_strs.tag_str AS tags_str
+        SELECT s.id, s.email, s.date_created, s.status, sound_recording_id, sr.title, sr.short_name, sr.author, sr.description, sr.latitude, sr.longitude, sr.date_recorded, sr.file_location, image_strs.img_str AS image_file_string, tag_strs.tag_str AS tags_str
         FROM submissions s
         JOIN sound_recordings sr ON s.sound_recording_id = sr.id
         LEFT JOIN (
@@ -39,6 +39,7 @@ export async function getSubmissions(options?: GetSubmissionsOptions): Promise<S
             soundRecording: {
                 id: row.sound_recording_id,
                 title: row.title,
+                shortName: row.short_name,
                 author: row.author,
                 description: row.description,
                 location: {

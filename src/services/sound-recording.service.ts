@@ -7,10 +7,11 @@ import { ImagesContainerClient, RecordingsContainerClient } from '../utils/Stora
 import HttpError from '../utils/HttpError.util';
 import * as TagService from '../services/tag.service';
 import { deserializeTags, SELECT_TAGS_BY_RECORDING_SERIALIZED } from '../utils/db-transform.utils';
+import { generateShortName } from '../utils/submission.utils';
 
 export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
     const results = await db.query(
-        `SELECT sr.id, title, author, description, latitude, longitude, date_recorded, file_location, date_approved, image_strs.img_str AS image_file_string, tag_strs.tag_str AS tags_str
+        `SELECT sr.id, title, short_name, author, description, latitude, longitude, date_recorded, file_location, date_approved, image_strs.img_str AS image_file_string, tag_strs.tag_str AS tags_str
         FROM publications
         JOIN submissions s ON submission_id = s.id
         JOIN sound_recordings sr ON s.sound_recording_id = sr.id
@@ -32,6 +33,7 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
         return {
             id: row.id,
             title: row.title,
+            shortName: row.short_name,
             author: row.author,
             description: row.description,
             location,
@@ -49,6 +51,7 @@ export async function getPublishedSoundRecordings(): Promise<SoundRecording[]> {
 export async function createSoundRecording(soundRecording: CreateSoundRecordingInput): Promise<CreateSoundRecordingResult> {
     const soundRecordingId = uuidv4();
     const title = soundRecording.title;
+    const shortName = generateShortName(soundRecording.title);
     const fileLocation = soundRecording.fileLocation;
     const author = soundRecording.author;
     const description = soundRecording.description;
@@ -67,6 +70,7 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
     const params = [
         soundRecordingId,
         title,
+        shortName,
         fileLocation,
         author,
         description, 
@@ -76,7 +80,7 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
     ];
 
     await db.insert(
-        `INSERT INTO sound_recordings (id, title, file_location, author, description, date_recorded, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO sound_recordings (id, title, short_name, file_location, author, description, date_recorded, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         params
     );
 

@@ -17,6 +17,7 @@ CREATE TABLE sound_clips(
 CREATE TABLE sound_recordings(
     id VARCHAR(36),
     title VARCHAR(100) NOT NULL,
+    short_name VARCHAR(100) NOT NULL,
     file_location VARCHAR(200) NOT NULL,
     author VARCHAR(100),
     description TEXT,

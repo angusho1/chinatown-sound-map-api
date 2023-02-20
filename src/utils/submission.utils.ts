@@ -13,3 +13,11 @@ export const getSubmissionStatusFromString = (status: string): SubmissionStatus 
             throw new Error('Invalid submission status');
     }
 }
+
+export const generateShortName = (title: string) => {
+    let splitStr = title.split(/(?:,|\.|-|_|\/|\\| )+/);
+    splitStr.forEach(str => str.replace(/[^0-9a-z]/gi, ''));
+    splitStr = splitStr.map(str => str.toLowerCase());
+    splitStr = splitStr.filter(str => /\S/.test(str));
+    return splitStr.join('-');
+};
