@@ -28,7 +28,7 @@ interface CreateRecordingInputs {
     latitude: number;
     longitude: number;
     audioFilePath: string;
-    imageFilePath: string;
+    imageFilePaths: string[];
     tags: string[];
 }
 
@@ -48,7 +48,10 @@ const getRecordingData = (csvFilePath: string, dataFilePath: string): CreateReco
             latitude: record.Latitude,
             longitude: record.Longitude,
             audioFilePath: path.join(dataFilePath, record.Shortname, `${record.Shortname}.mp3`),
-            imageFilePath: path.join(dataFilePath, record.Shortname, `${record.Shortname}.jpeg`),
+            imageFilePaths: [
+                path.join(dataFilePath, record.Shortname, `${record.Shortname}.jpeg`),
+                path.join(dataFilePath, record.Shortname, `${record.Shortname}.jpg`),
+            ],
             tags: [defaultTag],
         };
     });
@@ -88,7 +91,7 @@ const createPublishedRecording = async (inputs: CreateRecordingInputs) => {
         latitude,
         longitude,
         audioFilePath,
-        imageFilePath,
+        imageFilePaths,
         tags,
     } = inputs;
 
@@ -99,23 +102,25 @@ const createPublishedRecording = async (inputs: CreateRecordingInputs) => {
         { title, author },
     ) as any;
 
-    if (results.length > 0) return `${title} by ${author} already exists`;
+    if (results.length > 0) return `Already exists - ${title} by ${author}`;
 
     const fileLocation = await uploadFile(audioFilePath, FileType.RECORDING);
     if (!fileLocation) return `Recording file missing for ${title}`;
-    const imageLocation = await uploadFile(imageFilePath, FileType.IMAGE);
+    const imageFiles = (await Promise.all(imageFilePaths.map(filePath => {
+        return uploadFile(filePath, FileType.IMAGE);
+    }))).filter(file => !!file);
 
     const soundRecording = await SoundRecordingService.createSoundRecording({
         title,
         author,
         description,
         fileLocation,
-        dateRecorded: new Date(date),
+        dateRecorded: date !== 'NULL' ? new Date(date) : null,
         location: {
             lat: latitude,
             lng: longitude,
         },
-        imageFiles: imageLocation ? [imageLocation] : [],
+        imageFiles: imageFiles,
         existingTags: tags,
     });
 
@@ -138,4 +143,7 @@ const recordingData = getRecordingData(csvFilePath, dataFilePath);
 
 const recordingJobs = recordingData.map(r => createPublishedRecording(r));
 
-Promise.all(recordingJobs).then(res => console.log(res));
+Promise.all(recordingJobs).then(res => {
+    console.log(res);
+    process.exit(0);
+});

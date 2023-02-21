@@ -1,10 +1,10 @@
 USE chinatown_sound_map;
 
-DELETE FROM sound_recording_taggings WHERE sound_recording_id != '';
-DELETE FROM publications WHERE submission_id != '';
-DELETE FROM submissions WHERE id != '';
-DELETE FROM sound_recording_images WHERE sound_recording_id != '';
-DELETE FROM sound_recordings WHERE id != '';
+DELETE FROM sound_recording_taggings WHERE sound_recording_id != QUOTE('');
+DELETE FROM publications WHERE submission_id != QUOTE('');
+DELETE FROM submissions WHERE id != QUOTE('');
+DELETE FROM sound_recording_images WHERE sound_recording_id != QUOTE('');
+DELETE FROM sound_recordings WHERE id != QUOTE('');
 
 DROP TABLE sound_recording_taggings WHERE TRUE;
 DROP TABLE publications;
