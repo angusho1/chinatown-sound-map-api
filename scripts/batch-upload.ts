@@ -1,11 +1,7 @@
-let defaultTag = '';
-
 if (process.env.ENV_FILE_PATH) {
     require('dotenv').config({ path: process.env.ENV_FILE_PATH });
-    defaultTag = '583e37d5-3d49-4364-9171-f169c8a3ea61';
 } else {
     require('dotenv').config();
-    defaultTag = '0a08363f-2781-48cc-b7bf-b09aa8bd7c72';
 }
 
 import path from 'path';
@@ -18,6 +14,7 @@ import { SubmissionStatus } from "../src/models/Submission";
 import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'csv-parse/sync';
 import { db } from '../src/services/db.service';
+import SoundRecordingTag from '../src/models/SoundRecordingTag';
 
 interface CreateRecordingInputs {
     title: string;
@@ -29,7 +26,7 @@ interface CreateRecordingInputs {
     longitude: number;
     audioFilePath: string;
     imageFilePaths: string[];
-    tags: string[];
+    tags: SoundRecordingTag[];
 }
 
 const getRecordingData = (csvFilePath: string, dataFilePath: string): CreateRecordingInputs[] => {
@@ -52,7 +49,7 @@ const getRecordingData = (csvFilePath: string, dataFilePath: string): CreateReco
                 path.join(dataFilePath, record.Shortname, `${record.Shortname}.jpeg`),
                 path.join(dataFilePath, record.Shortname, `${record.Shortname}.jpg`),
             ],
-            tags: [defaultTag],
+            tags: [{ id: '', name: 'Chinatown Vancouver' }],
         };
     });
 };
@@ -121,7 +118,7 @@ const createPublishedRecording = async (inputs: CreateRecordingInputs) => {
             lng: longitude,
         },
         imageFiles: imageFiles,
-        existingTags: tags,
+        tags,
     });
 
     const submissionResult = await SubmissionService.createSubmission({

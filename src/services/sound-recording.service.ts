@@ -59,13 +59,11 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
     const latitude = soundRecording.location.lat;
     const longitude = soundRecording.location.lng;
     const imageLocations = soundRecording.imageFiles;
-    const tagIds = soundRecording.existingTags;
+    const tags = soundRecording.tags;
     
-    const createTagsResult = await TagService.createTags({
-        names: soundRecording.newTags
+    const createTagsResult = await TagService.createTagsIfNew({
+        tags,
     });
-
-    tagIds.push(...createTagsResult.tagIds);
 
     const params = [
         soundRecordingId,
@@ -99,10 +97,10 @@ export async function createSoundRecording(soundRecording: CreateSoundRecordingI
         await Promise.all(imageInserts);
     }
 
-    if (tagIds.length > 0) {
+    if (createTagsResult.tags.length > 0) {
         await db.insertMultiple(
             `INSERT INTO sound_recording_taggings (tag_id, sound_recording_id) VALUES ?`,
-            tagIds.map(tagId => [ tagId, soundRecordingId ])
+            createTagsResult.tags.map(tag => [ tag.id, soundRecordingId ])
         );
     }
 

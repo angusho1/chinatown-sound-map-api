@@ -8,9 +8,9 @@ export type CreateTagResult = SoundRecordingTag & {
 }
 
 export type CreateTagsInput = {
-    names: string[];
+    tags: SoundRecordingTag[];
 }
 
 export type CreateTagsResult = {
-    tagIds: string[];
+    tags: SoundRecordingTag[];
 }

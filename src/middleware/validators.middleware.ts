@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { body, check, CustomSanitizer, CustomValidator, query, validationResult } from "express-validator";
-import * as TagService from '../services/tag.service';
+import { body, CustomSanitizer, CustomValidator, query, validationResult } from "express-validator";
 import { SubmissionSortField } from "../types/submissions/submisison-request.types";
 
 export const MAX_TITLE_LEN = 100;
@@ -11,30 +10,9 @@ export const MAX_NUMBER_TAGS_PER_RECORDING = 5;
 
 const parseJSONString: CustomSanitizer = (value: string) => JSON.parse(value);
 
-const validateExistingTags: CustomValidator = async (value: string[]) => {
-    await Promise.all(value.map(async (tagId: string) => {
-        const exists = await TagService.tagExists({ id: tagId });
-        if (!exists) return Promise.reject(`Tag with id ${tagId} doesn't exist`);
-        return Promise.resolve();
-    }));
-    return true;
-};
-
-const validateNewTags: CustomValidator = async (value: string[]) => {
-    await Promise.all(value.map(async (tagName: string) => {
-        const exists = await TagService.tagExists({ name: tagName });
-        if (exists) return Promise.reject(`Tag '${tagName}' already exists`);
-        return Promise.resolve();
-    }));
-    return true;
-};
-
-const validateTagCount: CustomValidator = (value, { req }) => {
-    console.log(req.body.existingTags);
-    console.log(req.body.newTags);
-    const existingTagsCount = req.body.existingTags ? req.body.existingTags.length : 0;
-    const newTagsCount = req.body.newTags ? req.body.newTags.length : 0;
-    if (existingTagsCount + newTagsCount > MAX_NUMBER_TAGS_PER_RECORDING) throw new Error(`Number of tags exceeds the allowed amount (${MAX_NUMBER_TAGS_PER_RECORDING})`);
+const validateTagCount: CustomValidator = (value) => {
+    const tagCount = value.length;
+    if (tagCount > MAX_NUMBER_TAGS_PER_RECORDING) throw new Error(`Number of tags exceeds the allowed amount (${MAX_NUMBER_TAGS_PER_RECORDING})`);
     return true;
 };
 
@@ -86,25 +64,16 @@ export const createSubmissionValidator = [
     body('location.lng')
         .exists()
         .isFloat({ min: -180, max: 180 }),
-    body('existingTags')
-        .optional()
-        .isString()
+    body('tags')
         .customSanitizer(parseJSONString)
         .isArray()
-        .bail(),
-    body('newTags')
-        .optional()
-        .isString()
-        .customSanitizer(parseJSONString)
-        .isArray()
-        .bail(),
-    check('existingTags')
-        .custom(validateTagCount)
-        .bail(),
-    body('existingTags')
-        .custom(validateExistingTags),
-    body('newTags')
-        .custom(validateNewTags),
+        .custom(validateTagCount),
+    body('tags.*.id')
+        .exists()
+        .isString(),
+    body('tags.*.name')
+        .exists()
+        .isString(),
     body('imageFiles')
         .optional()
         .isArray()

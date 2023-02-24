@@ -49,22 +49,36 @@ export async function createTag(tag: CreateTagInput): Promise<CreateTagResult> {
     return submissionResult;
 }
 
-export async function createTags(input: CreateTagsInput): Promise<CreateTagsResult> {
-    if (!input.names || input.names.length === 0) {
-        return { tagIds: [] };
-    }
+export async function createTagsIfNew(input: CreateTagsInput): Promise<CreateTagsResult> {
+    const tags = input.tags;
+    const existingTags: SoundRecordingTag[] = [];
+    const newTagNames: string[] = [];
 
-    const tags = input.names.map(name => {
-        return { tagId: uuidv4(), name };
+    await Promise.all(tags.map(async (tag: SoundRecordingTag) => {
+        if (!tag.id) {
+            const existingTag = await getTagIfExists({ name: tag.name });
+            if (existingTag) existingTags.push(existingTag);
+            else newTagNames.push(tag.name);
+        } else {
+            const existingTag = await getTagIfExists({ id: tag.id });
+            if (existingTag) existingTags.push(existingTag);
+            else throw new HttpError(400, `Tag with ID ${tag.id} was not found`);
+        }
+    }));
+
+    const tagsToCreate = newTagNames.map(name => {
+        return { id: uuidv4(), name };
     });
 
-    const values = tags.map(tag => [ tag.tagId, tag.name ]);
+    const values = tagsToCreate.map(tag => [ tag.id, tag.name ]);
 
     try {
-        await db.insertMultiple(
-            `INSERT INTO tags (id, name) VALUES ?`,
-            values
-        );
+        if (tagsToCreate.length > 0) {
+            await db.insertMultiple(
+                `INSERT INTO tags (id, name) VALUES ?`,
+                values
+            );
+        }
     } catch (e) {
         if ((e as any).errno === MysqlErrorCodes.ER_DUP_ENTRY) {
             throw new HttpError(400, `A provided tag already exists`);
@@ -74,13 +88,13 @@ export async function createTags(input: CreateTagsInput): Promise<CreateTagsResu
     }
 
     const result = {
-        tagIds: tags.map(tag => tag.tagId)
+        tags: existingTags.concat(tagsToCreate),
     };
 
     return result;
 }
 
-export async function tagExists(filter: { id?: string, name?: string }): Promise<boolean> {
+export async function getTagIfExists(filter: { id?: string, name?: string }): Promise<SoundRecordingTag> {
     let rows;
     if (filter.id) {
         rows = await db.query(`SELECT id FROM tags WHERE id = ?`, [filter.id]);
@@ -89,5 +103,5 @@ export async function tagExists(filter: { id?: string, name?: string }): Promise
     } else {
         throw new Error('Tag identifier was not provided');
     }
-    return rows.length > 0;
+    return rows.length > 0 ? { id: rows[0].id, name: rows[0].name } : null;
 }

@@ -1,8 +1,6 @@
 import SoundRecording from '../../models/SoundRecording';
 
-export type CreateSoundRecordingInput = Omit<SoundRecording, "id"|"tags"|"shortName"> & {
-    existingTags?: string[];
-    newTags?: string[];
+export type CreateSoundRecordingInput = Omit<SoundRecording, "id"|"shortName"> & {
 };
 
 export type CreateSoundRecordingResult = Omit<SoundRecording, "imageFiles">;
