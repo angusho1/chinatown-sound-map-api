@@ -7,8 +7,11 @@ import HttpError from '../utils/HttpError.util';
 
 export async function getTags(): Promise<SoundRecordingTag[]> {
     const rows = await db.query(`
-        SELECT id, name
-        FROM tags
+        SELECT DISTINCT t.id, t.name
+        FROM publications p
+        LEFT JOIN submissions s ON s.id = p.submission_id
+        LEFT JOIN sound_recording_taggings srt ON srt.sound_recording_id = s.sound_recording_id
+        LEFT JOIN tags t ON t.id = srt.tag_id
     `);
 
     const tags: SoundRecordingTag[] = rows.map(row => {
