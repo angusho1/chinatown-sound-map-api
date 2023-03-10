@@ -1,19 +1,6 @@
 CREATE DATABASE chinatown_sound_map;
 USE chinatown_sound_map;
 
--- Legacy sound recordings
-CREATE TABLE sound_clips(
-    id INT AUTO_INCREMENT,
-    title VARCHAR(100),
-    author VARCHAR(100),
-    description TEXT,
-    date DATE,
-    content TEXT,
-    latitude DECIMAL(19, 15),
-    longitude DECIMAL(19, 15),
-    PRIMARY KEY (id)
-);
-
 CREATE TABLE sound_recordings(
     id VARCHAR(36),
     title VARCHAR(100) NOT NULL,

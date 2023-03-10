@@ -184,23 +184,6 @@
 			"response": []
 		},
 		{
-			"name": "sound-clips",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/sound-clips",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"sound-clips"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "login/google",
 			"request": {
 				"method": "GET",

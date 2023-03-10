@@ -6,7 +6,6 @@ import passport from 'passport';
 
 import indexRoutes from './src/routes/index.route';
 import userRoutes from './src/routes/user.route';
-import soundClipRoutes from './src/routes/sound-clip.route';
 import soundRecordingRoutes from './src/routes/sound-recording.route';
 import submissionRoutes from './src/routes/submission.route';
 import tagRoutes from './src/routes/tag.route';
@@ -25,7 +24,6 @@ app.use(express.static(path.join(__dirname, 'src/public')));
 
 app.use(indexRoutes);
 app.use(userRoutes);
-app.use(soundClipRoutes);
 app.use(soundRecordingRoutes);
 app.use(submissionRoutes);
 app.use(tagRoutes);
