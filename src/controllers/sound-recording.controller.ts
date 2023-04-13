@@ -19,6 +19,7 @@ export async function downloadSoundRecording(req: Request, res: Response, next: 
         const fileResult = await SoundRecordingService.getSoundRecordingFile(fileName);
 
         res.writeHead(200, {
+            'Access-Control-Expose-Headers': 'Content-Disposition',
             'Content-Type': 'audio/mpeg',
             'Content-Length': fileResult.size,
             'Content-Disposition': `attachment; filename=${fileResult.fileName}`
@@ -44,6 +45,7 @@ export async function downloadImage(req: Request, res: Response, next: NextFunct
         else contentType = 'image/*'
 
         res.writeHead(200, {
+            'Access-Control-Expose-Headers': 'Content-Disposition',
             'Content-Type': contentType,
             'Content-Length': fileResult.size,
             'Content-Disposition': `attachment; filename=${fileResult.fileName}`
