@@ -12,9 +12,11 @@ import tagRoutes from './src/routes/tag.route';
 import authRoutes from './src/routes/auth.route';
 import errorHandler from './src/middleware/error.middleware';
 import { handleSubmissionError } from './src/middleware/submission.middleware';
+import corsConfig from './src/config/cors.config';
 
 const app = express();
 
+app.use(corsConfig);
 app.use(logger('dev'));
 app.use(express.json() as RequestHandler);
 app.use(express.urlencoded({ extended: false }) as RequestHandler);
