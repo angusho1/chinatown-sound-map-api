@@ -10,6 +10,7 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE,
     port: parseInt(process.env.MYSQL_PORT),
     namedPlaceholders: true,
+    connectTimeout: 30000,
     // ssl: process.env.NODE_ENV === 'production' ? {
     //     rejectUnauthorized: true,
     //     ca: [fs.readFileSync(process.env.MYSQL_SSL_CA_FILE_PATH, "utf8")]
